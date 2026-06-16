@@ -1,0 +1,2094 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>【リノコ】現地調査報告フォーム</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body { font-family: 'Noto Sans JP', sans-serif; background: #F0F2F5; color: #1a1a1a; min-height: 100vh; padding-bottom: 60px; }
+
+/* HEADER */
+.site-header { background: #0A1F44; padding: 14px 24px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+.site-logo { width: 32px; height: 32px; background: #E85A2B; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: #fff; flex-shrink: 0; }
+.site-title { font-size: 15px; font-weight: 700; color: #fff; }
+.site-sub { font-size: 11px; color: #7A9CC6; margin-top: 1px; }
+
+/* PROGRESS */
+.progress-wrap { background: #0A1F44; padding: 0 24px 16px; }
+.progress-steps { display: flex; align-items: center; max-width: 640px; margin: 0 auto; }
+.step-item { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; flex: 1; }
+.step-circle { width: 28px; height: 28px; border-radius: 50%; background: #1E3A6E; border: 2px solid #2D5294; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #5A80B8; transition: all .3s; position: relative; z-index: 1; }
+.step-circle.active { background: #E85A2B; border-color: #E85A2B; color: #fff; box-shadow: 0 0 0 4px rgba(232,90,43,.2); }
+.step-circle.done { background: #2D6A4F; border-color: #2D6A4F; color: #fff; }
+.step-label { font-size: 10px; color: #5A80B8; text-align: center; white-space: nowrap; font-weight: 500; }
+.step-label.active { color: #FFB899; }
+.step-label.done { color: #74C69D; }
+.step-connector { flex: 1; height: 2px; background: #2D5294; margin: 0 4px; margin-bottom: 20px; transition: background .3s; }
+.step-connector.done { background: #2D6A4F; }
+
+/* LAYOUT */
+.container { max-width: 680px; margin: 24px auto 0; padding: 0 16px; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* CARD */
+.card { background: #fff; border-radius: 12px; padding: 28px 28px 28px 32px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+.page-header { background: linear-gradient(135deg, #0A1F44 0%, #1A3A6E 100%); border-radius: 12px; padding: 24px 28px; margin-bottom: 16px; position: relative; overflow: hidden; }
+.page-header::after { content: ''; position: absolute; right: -20px; top: -20px; width: 120px; height: 120px; background: rgba(232,90,43,.15); border-radius: 50%; }
+.page-badge { display: inline-flex; align-items: center; gap: 5px; background: #E85A2B; color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 10px; letter-spacing: .04em; }
+.page-header h2 { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 6px; line-height: 1.4; }
+.page-header p { font-size: 12px; color: #8AAED4; line-height: 1.7; }
+
+/* SECTION */
+.sec-title { font-size: 12px; font-weight: 700; color: #5A6E8A; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1.5px solid #EEF1F5; display: flex; align-items: center; gap: 6px; }
+.sec-title-icon { width: 20px; height: 20px; background: #E85A2B; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; }
+
+/* 台番号バッジ */
+.unit-header { background: #F4F6FA; border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.unit-badge { background: #0A1F44; color: #fff; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+.unit-label { font-size: 13px; font-weight: 700; color: #2A3A50; }
+
+/* 展開ブロック */
+.expand-block { display: none; margin-top: 4px; }
+.expand-block.open { display: block; }
+
+/* FIELD */
+.field { margin-bottom: 18px; }
+.field:last-child { margin-bottom: 0; }
+.field-label { display: block; font-size: 13px; font-weight: 700; color: #2A3A50; margin-bottom: 6px; }
+.field-label .req { color: #E85A2B; margin-left: 3px; font-size: 11px; }
+.field-label .opt { color: #8A9AB0; font-size: 11px; font-weight: 400; margin-left: 5px; }
+.field-label .sub { display: block; font-size: 11px; font-weight: 400; color: #8A9AB0; margin-top: 2px; line-height: 1.5; }
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+/* INPUTS */
+input[type="text"], input[type="date"], select, textarea {
+  width: 100%; padding: 10px 13px; border: 1.5px solid #D8DEE8; border-radius: 8px;
+  font-size: 14px; font-family: 'Noto Sans JP', sans-serif; background: #FAFBFD;
+  color: #1a1a1a; transition: border-color .2s, box-shadow .2s; appearance: none; -webkit-appearance: none;
+}
+input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
+  outline: none; border-color: #0A1F44; background: #fff; box-shadow: 0 0 0 3px rgba(10,31,68,.08);
+}
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%235A6E8A' d='M6 8L0 0h12z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 13px center; padding-right: 36px; cursor: pointer; }
+textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+input.err, select.err, textarea.err { border-color: #DC3545; background: #FFF8F8; }
+
+/* CHOICE */
+.choice-group { display: flex; flex-wrap: wrap; gap: 7px; }
+.choice-label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #2A3A50; background: #F4F6FA; border: 1.5px solid #D8DEE8; border-radius: 22px; padding: 6px 13px; cursor: pointer; transition: all .18s; user-select: none; }
+.choice-label:hover { border-color: #0A1F44; background: #EDF0F7; }
+.choice-label input { display: none; }
+.choice-label.selected { background: #0A1F44; border-color: #0A1F44; color: #fff; font-weight: 500; }
+
+/* ERROR */
+.err-msg { font-size: 11px; color: #DC3545; margin-top: 4px; display: none; }
+.err-msg.show { display: block; }
+
+/* フィールドエラーハイライト */
+.field.has-error { position: relative; background: #FFF5F5; border-radius: 8px; padding: 10px 12px; margin-left: -12px; margin-right: -12px; }
+.field.has-error .field-label { color: #DC3545; }
+.field.has-error input[type=text], .field.has-error input[type=date], .field.has-error select, .field.has-error textarea { border-color: #DC3545; background: #FFF8F8; }
+.field.has-error .choice-group .choice-label { border-color: #FFAAAA; background: #FFF0F0; }
+.field.has-error .err-msg { display: block; font-weight: 700; font-size: 12px; }
+
+/* エラー一覧ボックス */
+
+
+/* HINT / INFO */
+.hint { font-size: 11px; color: #8A9AB0; margin-top: 5px; line-height: 1.5; }
+.info-box { background: #FFF6F2; border: 1.5px solid #F5C4AE; border-radius: 8px; padding: 12px 15px; font-size: 12px; color: #933A18; line-height: 1.7; }
+.info-box-blue { background: #F0F4FF; border: 1.5px solid #BFD0F0; border-radius: 8px; padding: 12px 15px; font-size: 12px; color: #1A3A6E; line-height: 1.7; }
+
+/* MATRIX */
+.matrix-wrap { overflow-x: auto; }
+.matrix { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 380px; }
+.matrix th { padding: 8px 10px; background: #F4F6FA; color: #5A6E8A; font-weight: 700; text-align: center; border: 1px solid #E2E8F0; }
+.matrix th:first-child { text-align: left; }
+.matrix td { padding: 8px 10px; border: 1px solid #E2E8F0; text-align: center; color: #2A3A50; }
+.matrix td:first-child { text-align: left; font-weight: 500; }
+.matrix input[type="radio"] { width: 16px; height: 16px; accent-color: #0A1F44; cursor: pointer; }
+
+/* PHOTO */
+.photo-section { margin-bottom: 20px; }
+.photo-section-title { font-size: 13px; font-weight: 700; color: #2A3A50; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.photo-section-title .badge { font-size: 11px; background: #0A1F44; color: #fff; padding: 2px 8px; border-radius: 12px; }
+.photo-guide { background: #F4F6FA; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; font-size: 12px; color: #5A6E8A; line-height: 1.7; }
+.photo-guide ul { margin: 4px 0 0 16px; }
+.photo-upload-box { border: 2px dashed #C8D0DC; border-radius: 10px; padding: 16px; background: #FAFBFD; transition: border-color .2s; }
+.photo-upload-box.err-photo { border-color: #DC3545; background: #FFF8F8; }
+.photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px; margin-bottom: 10px; }
+.photo-thumb { aspect-ratio: 1; border-radius: 8px; overflow: hidden; position: relative; background: #E8EBF0; }
+.photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.photo-thumb .del-btn { position: absolute; top: 3px; right: 3px; width: 20px; height: 20px; background: rgba(0,0,0,.55); color: #fff; border: none; border-radius: 50%; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.photo-add-label { display: flex; align-items: center; justify-content: center; gap: 7px; border: 1.5px solid #D8DEE8; border-radius: 8px; padding: 10px; font-size: 13px; color: #5A6E8A; cursor: pointer; background: #fff; font-family: 'Noto Sans JP', sans-serif; transition: all .18s; }
+.photo-add-label:hover { border-color: #0A1F44; color: #0A1F44; }
+.photo-count-msg { font-size: 12px; color: #5A6E8A; margin-top: 7px; }
+.photo-count-msg .ok { color: #2D6A4F; font-weight: 700; }
+
+/* WORK TYPE CARD */
+.work-type-cards { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.work-type-card { border: 2px solid #D8DEE8; border-radius: 10px; padding: 16px 18px; cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: 14px; background: #FAFBFD; }
+.work-type-card:hover { border-color: #0A1F44; background: #F0F4FF; }
+.work-type-card.selected { border-color: #E85A2B; background: #FFF6F2; }
+.work-type-icon { width: 44px; height: 44px; border-radius: 10px; background: #E8EBF0; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; transition: background .2s; }
+.work-type-card.selected .work-type-icon { background: #FFE5D8; }
+.work-type-body h3 { font-size: 14px; font-weight: 700; color: #2A3A50; margin-bottom: 2px; }
+.work-type-body p { font-size: 11px; color: #8A9AB0; }
+.work-type-check { margin-left: auto; width: 22px; height: 22px; border-radius: 50%; border: 2px solid #D8DEE8; display: flex; align-items: center; justify-content: center; color: transparent; font-size: 12px; flex-shrink: 0; transition: all .2s; }
+.work-type-card.selected .work-type-check { background: #E85A2B; border-color: #E85A2B; color: #fff; }
+
+/* NAV BUTTONS */
+.nav-area { display: flex; gap: 10px; margin-top: 24px; }
+.btn-prev, .btn-next, .btn-submit { padding: 13px 28px; border-radius: 8px; font-size: 14px; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; cursor: pointer; border: none; transition: all .2s; display: flex; align-items: center; gap: 7px; }
+.btn-prev { background: #EEF1F5; color: #5A6E8A; flex: 0 0 auto; }
+.btn-prev:hover { background: #D8DEE8; }
+.btn-next { background: #E85A2B; color: #fff; flex: 1; justify-content: center; }
+.btn-next:hover { background: #C94D22; }
+.btn-submit { background: #0A1F44; color: #fff; flex: 1; justify-content: center; }
+.btn-submit:hover { background: #132E60; }
+
+/* TOAST / SUCCESS */
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #DC3545; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; display: none; z-index: 999; white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,.2); }
+.toast.show { display: block; }
+.success-card { text-align: center; padding: 40px 28px; }
+.success-icon { width: 72px; height: 72px; background: #D1FAE5; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 20px; }
+.success-card h2 { font-size: 20px; color: #1a1a1a; margin-bottom: 8px; }
+.success-card p { font-size: 13px; color: #5A6E8A; line-height: 1.7; }
+.divider { height: 1px; background: #EEF1F5; margin: 20px 0; }
+
+@media (max-width: 480px) {
+  .card { padding: 20px 16px; }
+  .page-header { padding: 20px 16px; }
+  .row-2 { grid-template-columns: 1fr; }
+  .row-3 { grid-template-columns: 1fr 1fr; }
+  .site-header { padding: 12px 16px; }
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-logo">R</div>
+  <div>
+    <div class="site-title">リノコ 現地調査報告フォーム</div>
+    <div class="site-sub">加盟店様向け｜調査内容をご入力ください</div>
+  </div>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-steps">
+    <div class="step-item">
+      <div class="step-circle active" id="sc-1">1</div>
+      <div class="step-label active" id="sl-1">基本情報</div>
+    </div>
+    <div class="step-connector" id="conn-1"></div>
+    <div class="step-item">
+      <div class="step-circle" id="sc-2">2</div>
+      <div class="step-label" id="sl-2">調査内容</div>
+    </div>
+    <div class="step-connector" id="conn-2"></div>
+    <div class="step-item">
+      <div class="step-circle" id="sc-3">3</div>
+      <div class="step-label" id="sl-3">写真・備考</div>
+    </div>
+    <div class="step-connector" id="conn-3"></div>
+    <div class="step-item">
+      <div class="step-circle" id="sc-4">4</div>
+      <div class="step-label" id="sl-4">内容確認</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ===== PAGE 1: 基本情報 ===== -->
+<div class="page active" id="page-1">
+  <div class="page-header">
+    <div class="page-badge">STEP 1 / 3</div>
+    <h2>基本情報の入力</h2>
+    <p>会社名・担当者・施主様の情報と工事内容を選択してください。<br>工事内容によって次のページの質問が変わります。</p>
+  </div>
+
+  <div class="card">
+    <div class="sec-title"><div class="sec-title-icon">🏢</div>加盟店・担当者情報</div>
+    <div class="row-2">
+      <div class="field">
+        <label class="field-label">会社名<span class="req">*</span></label>
+        <input type="text" id="company" placeholder="例：〇〇リフォーム株式会社">
+        <div class="err-msg" id="e-company">入力してください</div>
+      </div>
+      <div class="field">
+        <label class="field-label">担当者名<span class="req">*</span></label>
+        <input type="text" id="staff" placeholder="例：山田 太郎">
+        <div class="err-msg" id="e-staff">入力してください</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title"><div class="sec-title-icon">🏠</div>施主様・案件情報</div>
+    <div class="row-2">
+      <div class="field">
+        <label class="field-label">お施主様名<span class="req">*</span></label>
+        <input type="text" id="owner" placeholder="例：田中 太郎">
+        <div class="err-msg" id="e-owner">入力してください</div>
+      </div>
+      <div class="field">
+        <label class="field-label">調査実施日<span class="req">*</span></label>
+        <input type="date" id="survey-date">
+        <div class="err-msg" id="e-survey-date">選択してください</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title"><div class="sec-title-icon">🔧</div>工事内容の選択</div>
+    <div class="field">
+      <label class="field-label">工事内容<span class="req">*</span>
+        <span class="sub">選択した内容に応じて次ページの質問が変わります</span>
+      </label>
+      <div class="work-type-cards">
+        <div class="work-type-card" onclick="selectWork('toilet', this)">
+          <div class="work-type-icon">🚽</div>
+          <div class="work-type-body"><h3>トイレ交換</h3><p>＋その他付随した内装工事</p></div>
+          <div class="work-type-check">✓</div>
+        </div>
+        <div class="work-type-card" onclick="selectWork('boiler', this)">
+          <div class="work-type-icon">🔥</div>
+          <div class="work-type-body"><h3>給湯器交換</h3><p>エコキュート等含む</p></div>
+          <div class="work-type-check">✓</div>
+        </div>
+        <div class="work-type-card" onclick="selectWork('cloth', this)">
+          <div class="work-type-icon">🖼️</div>
+          <div class="work-type-body"><h3>内装／クロス・床 張り替え</h3><p>クロス・フローリング・CF交換など</p></div>
+          <div class="work-type-check">✓</div>
+        </div>
+      </div>
+      <div class="err-msg" id="e-work-type">工事内容を選択してください</div>
+    </div>
+  </div>
+
+  <div class="nav-area">
+    <button class="btn-next" onclick="goPage1to2()">次へ：調査内容の入力 →</button>
+  </div>
+</div>
+
+<!-- ===== PAGE 2: 調査内容 ===== -->
+<div class="page" id="page-2">
+
+  <!-- ====== トイレ ====== -->
+  <div id="sec-toilet" style="display:none">
+    <div class="page-header">
+      <div class="page-badge">STEP 2 / 3 ｜ 🚽 トイレ交換</div>
+      <h2>トイレ交換の調査内容</h2>
+      <p>既存設備の状態とお施主様のご希望をご入力ください。</p>
+    </div>
+
+    <!-- 1台目 -->
+    <div class="card" id="toilet-unit-1">
+      <div class="unit-header"><span class="unit-badge">1台目</span><span class="unit-label">既存製品・設置場所</span></div>
+
+      <div class="field">
+        <label class="field-label">トイレの種類<span class="req">*</span></label>
+        <div class="choice-group" id="rg-toilet-type-1">
+          <label class="choice-label"><input type="radio" name="toilet-type-1" value="洋式（タンクあり）">洋式（タンクあり）</label>
+          <label class="choice-label"><input type="radio" name="toilet-type-1" value="洋式（タンクレス）">洋式（タンクレス）</label>
+          <label class="choice-label"><input type="radio" name="toilet-type-1" value="和式">和式</label>
+          <label class="choice-label"><input type="radio" name="toilet-type-1" value="その他">その他</label>
+        </div>
+        <div class="err-msg" id="e-toilet-type-1">選択してください</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">排水芯<span class="req">*</span></label>
+        <div class="choice-group" id="rg-drain-type-1">
+          <label class="choice-label"><input type="radio" name="drain-type-1" value="壁120">壁120</label>
+          <label class="choice-label"><input type="radio" name="drain-type-1" value="壁155">壁155</label>
+          <label class="choice-label"><input type="radio" name="drain-type-1" value="床リモデル">床リモデル</label>
+          <label class="choice-label"><input type="radio" name="drain-type-1" value="床200">床200</label>
+          <label class="choice-label"><input type="radio" name="drain-type-1" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-drain-type-1">選択してください</div>
+        <p class="hint">壁排水→壁120 or 壁155　床排水（リモデル対応）→床リモデル　通常床排水→床200</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label">設置場所の寸法（内寸）<span class="req">*</span></label>
+        <div class="row-3">
+          <div>
+            <label class="field-label" style="font-size:12px;font-weight:500;color:#5A6E8A">① 奥行き（mm）<span class="req">*</span></label>
+            <input type="text" id="t-depth-1" placeholder="例：1200mm">
+            <div class="err-msg" id="e-t-depth-1">入力してください</div>
+          </div>
+          <div>
+            <label class="field-label" style="font-size:12px;font-weight:500;color:#5A6E8A">② 幅（mm）<span class="req">*</span></label>
+            <input type="text" id="t-width-1" placeholder="例：900mm">
+            <div class="err-msg" id="e-t-width-1">入力してください</div>
+          </div>
+          <div>
+            <label class="field-label" style="font-size:12px;font-weight:500;color:#5A6E8A">③ 天井高（mm）<span class="req">*</span></label>
+            <input type="text" id="t-height-1" placeholder="例：2400mm">
+            <div class="err-msg" id="e-t-height-1">入力してください</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">室内の間取り情報<span class="opt">任意</span>
+          <span class="sub">クロス・床の張り替えが発生する場合に使用します。窓・ドアの数もご記載ください。</span>
+        </label>
+        <textarea id="t-layout-1" placeholder="例）窓1箇所（小）、ドア1枚&#10;特になければ空欄で可"></textarea>
+      </div>
+
+      <div class="divider"></div>
+      <div class="unit-header" style="margin-top:4px"><span class="unit-badge" style="background:#E85A2B">お施主様の希望</span></div>
+
+      <div class="field">
+        <label class="field-label">希望メーカー<span class="req">*</span></label>
+        <div class="choice-group" id="cg-t-maker-1">
+          <label class="choice-label"><input type="checkbox" name="t-maker-1" value="TOTO">TOTO</label>
+          <label class="choice-label"><input type="checkbox" name="t-maker-1" value="LIXIL">LIXIL</label>
+          <label class="choice-label"><input type="checkbox" name="t-maker-1" value="Panasonic">Panasonic</label>
+          <label class="choice-label"><input type="checkbox" name="t-maker-1" value="こだわりなし">こだわりなし</label>
+          <label class="choice-label"><input type="checkbox" name="t-maker-1" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-t-maker-1">1つ以上選択してください</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">希望シリーズ<span class="opt">任意</span>
+          <span class="sub">例：ネオレスト・アラウーノ・サティス　こだわりなければ空欄</span>
+        </label>
+        <input type="text" id="t-series-1" placeholder="例：ネオレスト / こだわりなし">
+      </div>
+
+      <div class="field">
+        <label class="field-label">希望価格帯<span class="req">*</span></label>
+        <div class="choice-group" id="rg-t-price-1">
+          <label class="choice-label"><input type="radio" name="t-price-1" value="高級">高級</label>
+          <label class="choice-label"><input type="radio" name="t-price-1" value="中級">中級</label>
+          <label class="choice-label"><input type="radio" name="t-price-1" value="普及">普及</label>
+          <label class="choice-label"><input type="radio" name="t-price-1" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-t-price-1">選択してください</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">手洗い有無<span class="req">*</span></label>
+        <div class="choice-group" id="rg-t-sink-1">
+          <label class="choice-label"><input type="radio" name="t-sink-1" value="あり">あり</label>
+          <label class="choice-label"><input type="radio" name="t-sink-1" value="なし">なし</label>
+          <label class="choice-label"><input type="radio" name="t-sink-1" value="特に希望なし">特に希望なし</label>
+          <label class="choice-label"><input type="radio" name="t-sink-1" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-t-sink-1">選択してください</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">便座グレード<span class="req">*</span></label>
+        <div class="choice-group" id="rg-t-grade-1">
+          <label class="choice-label"><input type="radio" name="t-grade-1" value="高級">高級</label>
+          <label class="choice-label"><input type="radio" name="t-grade-1" value="中級">中級</label>
+          <label class="choice-label"><input type="radio" name="t-grade-1" value="安さ優先">安さ優先</label>
+          <label class="choice-label"><input type="radio" name="t-grade-1" value="品番指定">品番指定</label>
+          <label class="choice-label"><input type="radio" name="t-grade-1" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-t-grade-1">選択してください</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">便座の機能<span class="req">*</span></label>
+        <div class="choice-group" id="rg-t-func-1">
+          <label class="choice-label"><input type="radio" name="t-func-1" value="温水洗浄便座">温水洗浄便座</label>
+          <label class="choice-label"><input type="radio" name="t-func-1" value="暖房便座">暖房便座</label>
+          <label class="choice-label"><input type="radio" name="t-func-1" value="普通便座">普通便座</label>
+          <label class="choice-label"><input type="radio" name="t-func-1" value="品番指定">品番指定</label>
+          <label class="choice-label"><input type="radio" name="t-func-1" value="特に希望なし">特に希望なし</label>
+          <label class="choice-label"><input type="radio" name="t-func-1" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-t-func-1">選択してください</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">品番（あれば）<span class="opt">任意</span>
+          <span class="sub">品番指定の場合は必ずご記入ください</span>
+        </label>
+        <input type="text" id="t-item-1" placeholder="例：TCF9887">
+      </div>
+
+      <div class="field">
+        <label class="field-label">追加工事<span class="req">*</span></label>
+        <div class="choice-group" id="cg-t-add-1">
+          <label class="choice-label"><input type="checkbox" name="t-add-1" value="クロス貼替（天井あり）">クロス貼替（天井あり）</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-1" value="クロス貼替（天井なし）">クロス貼替（天井なし）</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-1" value="電気工事">電気工事</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-1" value="換気扇交換">換気扇交換</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-1" value="CF交換">CF交換</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-1" value="フローリング貼替">フローリング貼替</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-1" value="ソフト巾木交換">ソフト巾木交換</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-1" value="給水き機交換">給水き機交換</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-1" value="特になし">特になし</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-1" value="その他">その他</label>
+        </div>
+        <div class="err-msg" id="e-t-add-1">1つ以上選択してください</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">他に交換するトイレはありますか？<span class="req">*</span>
+          <span class="sub">2台目がある場合は「ある」を選択すると入力欄が追加されます</span>
+        </label>
+        <div class="choice-group" id="rg-t-extra-1">
+          <label class="choice-label"><input type="radio" name="t-extra-1" value="ある" onchange="toggleUnit('toilet',2,true)">ある</label>
+          <label class="choice-label"><input type="radio" name="t-extra-1" value="ない" onchange="toggleUnit('toilet',2,false)">ない</label>
+        </div>
+        <div class="err-msg" id="e-t-extra-1">選択してください</div>
+      </div>
+    </div>
+
+    <!-- 2台目（トイレ） -->
+    <div class="card expand-block" id="toilet-unit-2">
+      <div class="unit-header"><span class="unit-badge">2台目</span><span class="unit-label">既存製品・設置場所</span></div>
+      <div class="field">
+        <label class="field-label">トイレの種類<span class="req">*</span></label>
+        <div class="choice-group" id="rg-toilet-type-2">
+          <label class="choice-label"><input type="radio" name="toilet-type-2" value="洋式（タンクあり）">洋式（タンクあり）</label>
+          <label class="choice-label"><input type="radio" name="toilet-type-2" value="洋式（タンクレス）">洋式（タンクレス）</label>
+          <label class="choice-label"><input type="radio" name="toilet-type-2" value="和式">和式</label>
+          <label class="choice-label"><input type="radio" name="toilet-type-2" value="その他">その他</label>
+        </div>
+        <div class="err-msg" id="e-toilet-type-2">選択してください</div>
+      </div>
+      <div class="field">
+        <label class="field-label">排水芯<span class="req">*</span></label>
+        <div class="choice-group" id="rg-drain-type-2">
+          <label class="choice-label"><input type="radio" name="drain-type-2" value="壁120">壁120</label>
+          <label class="choice-label"><input type="radio" name="drain-type-2" value="壁155">壁155</label>
+          <label class="choice-label"><input type="radio" name="drain-type-2" value="床リモデル">床リモデル</label>
+          <label class="choice-label"><input type="radio" name="drain-type-2" value="床200">床200</label>
+          <label class="choice-label"><input type="radio" name="drain-type-2" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-drain-type-2">選択してください</div>
+      </div>
+      <div class="field">
+        <label class="field-label">設置場所の寸法（内寸）<span class="req">*</span></label>
+        <div class="row-3">
+          <div>
+            <label class="field-label" style="font-size:12px;font-weight:500;color:#5A6E8A">① 奥行き<span class="req">*</span></label>
+            <input type="text" id="t-depth-2" placeholder="例：1200mm">
+            <div class="err-msg" id="e-t-depth-2">入力してください</div>
+          </div>
+          <div>
+            <label class="field-label" style="font-size:12px;font-weight:500;color:#5A6E8A">② 幅<span class="req">*</span></label>
+            <input type="text" id="t-width-2" placeholder="例：900mm">
+            <div class="err-msg" id="e-t-width-2">入力してください</div>
+          </div>
+          <div>
+            <label class="field-label" style="font-size:12px;font-weight:500;color:#5A6E8A">③ 天井高<span class="req">*</span></label>
+            <input type="text" id="t-height-2" placeholder="例：2400mm">
+            <div class="err-msg" id="e-t-height-2">入力してください</div>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="unit-header" style="margin-top:4px"><span class="unit-badge" style="background:#E85A2B">お施主様の希望</span></div>
+      <div class="field">
+        <label class="field-label">希望メーカー<span class="req">*</span></label>
+        <div class="choice-group" id="cg-t-maker-2">
+          <label class="choice-label"><input type="checkbox" name="t-maker-2" value="TOTO">TOTO</label>
+          <label class="choice-label"><input type="checkbox" name="t-maker-2" value="LIXIL">LIXIL</label>
+          <label class="choice-label"><input type="checkbox" name="t-maker-2" value="Panasonic">Panasonic</label>
+          <label class="choice-label"><input type="checkbox" name="t-maker-2" value="こだわりなし">こだわりなし</label>
+          <label class="choice-label"><input type="checkbox" name="t-maker-2" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-t-maker-2">1つ以上選択してください</div>
+      </div>
+      <div class="field">
+        <label class="field-label">希望価格帯<span class="req">*</span></label>
+        <div class="choice-group" id="rg-t-price-2">
+          <label class="choice-label"><input type="radio" name="t-price-2" value="高級">高級</label>
+          <label class="choice-label"><input type="radio" name="t-price-2" value="中級">中級</label>
+          <label class="choice-label"><input type="radio" name="t-price-2" value="普及">普及</label>
+          <label class="choice-label"><input type="radio" name="t-price-2" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-t-price-2">選択してください</div>
+      </div>
+      <div class="field">
+        <label class="field-label">手洗い有無<span class="req">*</span></label>
+        <div class="choice-group" id="rg-t-sink-2">
+          <label class="choice-label"><input type="radio" name="t-sink-2" value="あり">あり</label>
+          <label class="choice-label"><input type="radio" name="t-sink-2" value="なし">なし</label>
+          <label class="choice-label"><input type="radio" name="t-sink-2" value="特に希望なし">特に希望なし</label>
+          <label class="choice-label"><input type="radio" name="t-sink-2" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-t-sink-2">選択してください</div>
+      </div>
+      <div class="field">
+        <label class="field-label">便座グレード<span class="req">*</span></label>
+        <div class="choice-group" id="rg-t-grade-2">
+          <label class="choice-label"><input type="radio" name="t-grade-2" value="高級">高級</label>
+          <label class="choice-label"><input type="radio" name="t-grade-2" value="中級">中級</label>
+          <label class="choice-label"><input type="radio" name="t-grade-2" value="安さ優先">安さ優先</label>
+          <label class="choice-label"><input type="radio" name="t-grade-2" value="品番指定">品番指定</label>
+          <label class="choice-label"><input type="radio" name="t-grade-2" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-t-grade-2">選択してください</div>
+      </div>
+      <div class="field">
+        <label class="field-label">便座の機能<span class="req">*</span></label>
+        <div class="choice-group" id="rg-t-func-2">
+          <label class="choice-label"><input type="radio" name="t-func-2" value="温水洗浄便座">温水洗浄便座</label>
+          <label class="choice-label"><input type="radio" name="t-func-2" value="暖房便座">暖房便座</label>
+          <label class="choice-label"><input type="radio" name="t-func-2" value="普通便座">普通便座</label>
+          <label class="choice-label"><input type="radio" name="t-func-2" value="品番指定">品番指定</label>
+          <label class="choice-label"><input type="radio" name="t-func-2" value="特に希望なし">特に希望なし</label>
+          <label class="choice-label"><input type="radio" name="t-func-2" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-t-func-2">選択してください</div>
+      </div>
+      <div class="field">
+        <label class="field-label">追加工事<span class="req">*</span></label>
+        <div class="choice-group" id="cg-t-add-2">
+          <label class="choice-label"><input type="checkbox" name="t-add-2" value="クロス貼替（天井あり）">クロス貼替（天井あり）</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-2" value="クロス貼替（天井なし）">クロス貼替（天井なし）</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-2" value="電気工事">電気工事</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-2" value="換気扇交換">換気扇交換</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-2" value="CF交換">CF交換</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-2" value="フローリング貼替">フローリング貼替</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-2" value="ソフト巾木交換">ソフト巾木交換</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-2" value="給水き機交換">給水き機交換</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-2" value="特になし">特になし</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-2" value="その他">その他</label>
+        </div>
+        <div class="err-msg" id="e-t-add-2">1つ以上選択してください</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">他に交換するトイレはありますか？<span class="req">*</span>
+          <span class="sub">3台目がある場合は「ある」を選択</span>
+        </label>
+        <div class="choice-group" id="rg-t-extra-2">
+          <label class="choice-label"><input type="radio" name="t-extra-2" value="ある" onchange="toggleUnit('toilet',3,true)">ある</label>
+          <label class="choice-label"><input type="radio" name="t-extra-2" value="ない" onchange="toggleUnit('toilet',3,false)">ない</label>
+        </div>
+        <div class="err-msg" id="e-t-extra-2">選択してください</div>
+      </div>
+    </div>
+
+    <!-- 3台目（トイレ） -->
+    <div class="card expand-block" id="toilet-unit-3">
+      <div class="unit-header"><span class="unit-badge">3台目</span><span class="unit-label">既存製品・設置場所</span></div>
+      <div class="field">
+        <label class="field-label">トイレの種類<span class="req">*</span></label>
+        <div class="choice-group" id="rg-toilet-type-3">
+          <label class="choice-label"><input type="radio" name="toilet-type-3" value="洋式（タンクあり）">洋式（タンクあり）</label>
+          <label class="choice-label"><input type="radio" name="toilet-type-3" value="洋式（タンクレス）">洋式（タンクレス）</label>
+          <label class="choice-label"><input type="radio" name="toilet-type-3" value="和式">和式</label>
+          <label class="choice-label"><input type="radio" name="toilet-type-3" value="その他">その他</label>
+        </div>
+        <div class="err-msg" id="e-toilet-type-3">選択してください</div>
+      </div>
+      <div class="field">
+        <label class="field-label">排水芯<span class="req">*</span></label>
+        <div class="choice-group" id="rg-drain-type-3">
+          <label class="choice-label"><input type="radio" name="drain-type-3" value="壁120">壁120</label>
+          <label class="choice-label"><input type="radio" name="drain-type-3" value="壁155">壁155</label>
+          <label class="choice-label"><input type="radio" name="drain-type-3" value="床リモデル">床リモデル</label>
+          <label class="choice-label"><input type="radio" name="drain-type-3" value="床200">床200</label>
+          <label class="choice-label"><input type="radio" name="drain-type-3" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-drain-type-3">選択してください</div>
+      </div>
+      <div class="field">
+        <label class="field-label">設置場所の寸法（内寸）<span class="req">*</span></label>
+        <div class="row-3">
+          <div>
+            <label class="field-label" style="font-size:12px;font-weight:500;color:#5A6E8A">① 奥行き<span class="req">*</span></label>
+            <input type="text" id="t-depth-3" placeholder="例：1200mm">
+            <div class="err-msg" id="e-t-depth-3">入力してください</div>
+          </div>
+          <div>
+            <label class="field-label" style="font-size:12px;font-weight:500;color:#5A6E8A">② 幅<span class="req">*</span></label>
+            <input type="text" id="t-width-3" placeholder="例：900mm">
+            <div class="err-msg" id="e-t-width-3">入力してください</div>
+          </div>
+          <div>
+            <label class="field-label" style="font-size:12px;font-weight:500;color:#5A6E8A">③ 天井高<span class="req">*</span></label>
+            <input type="text" id="t-height-3" placeholder="例：2400mm">
+            <div class="err-msg" id="e-t-height-3">入力してください</div>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="unit-header" style="margin-top:4px"><span class="unit-badge" style="background:#E85A2B">お施主様の希望</span></div>
+      <div class="field">
+        <label class="field-label">希望メーカー<span class="req">*</span></label>
+        <div class="choice-group" id="cg-t-maker-3">
+          <label class="choice-label"><input type="checkbox" name="t-maker-3" value="TOTO">TOTO</label>
+          <label class="choice-label"><input type="checkbox" name="t-maker-3" value="LIXIL">LIXIL</label>
+          <label class="choice-label"><input type="checkbox" name="t-maker-3" value="Panasonic">Panasonic</label>
+          <label class="choice-label"><input type="checkbox" name="t-maker-3" value="こだわりなし">こだわりなし</label>
+          <label class="choice-label"><input type="checkbox" name="t-maker-3" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-t-maker-3">1つ以上選択してください</div>
+      </div>
+      <div class="field">
+        <label class="field-label">希望価格帯<span class="req">*</span></label>
+        <div class="choice-group" id="rg-t-price-3">
+          <label class="choice-label"><input type="radio" name="t-price-3" value="高級">高級</label>
+          <label class="choice-label"><input type="radio" name="t-price-3" value="中級">中級</label>
+          <label class="choice-label"><input type="radio" name="t-price-3" value="普及">普及</label>
+          <label class="choice-label"><input type="radio" name="t-price-3" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-t-price-3">選択してください</div>
+      </div>
+      <div class="field">
+        <label class="field-label">手洗い有無<span class="req">*</span></label>
+        <div class="choice-group" id="rg-t-sink-3">
+          <label class="choice-label"><input type="radio" name="t-sink-3" value="あり">あり</label>
+          <label class="choice-label"><input type="radio" name="t-sink-3" value="なし">なし</label>
+          <label class="choice-label"><input type="radio" name="t-sink-3" value="特に希望なし">特に希望なし</label>
+          <label class="choice-label"><input type="radio" name="t-sink-3" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-t-sink-3">選択してください</div>
+      </div>
+      <div class="field">
+        <label class="field-label">便座グレード<span class="req">*</span></label>
+        <div class="choice-group" id="rg-t-grade-3">
+          <label class="choice-label"><input type="radio" name="t-grade-3" value="高級">高級</label>
+          <label class="choice-label"><input type="radio" name="t-grade-3" value="中級">中級</label>
+          <label class="choice-label"><input type="radio" name="t-grade-3" value="安さ優先">安さ優先</label>
+          <label class="choice-label"><input type="radio" name="t-grade-3" value="品番指定">品番指定</label>
+          <label class="choice-label"><input type="radio" name="t-grade-3" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-t-grade-3">選択してください</div>
+      </div>
+      <div class="field">
+        <label class="field-label">便座の機能<span class="req">*</span></label>
+        <div class="choice-group" id="rg-t-func-3">
+          <label class="choice-label"><input type="radio" name="t-func-3" value="温水洗浄便座">温水洗浄便座</label>
+          <label class="choice-label"><input type="radio" name="t-func-3" value="暖房便座">暖房便座</label>
+          <label class="choice-label"><input type="radio" name="t-func-3" value="普通便座">普通便座</label>
+          <label class="choice-label"><input type="radio" name="t-func-3" value="品番指定">品番指定</label>
+          <label class="choice-label"><input type="radio" name="t-func-3" value="特に希望なし">特に希望なし</label>
+          <label class="choice-label"><input type="radio" name="t-func-3" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-t-func-3">選択してください</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">追加工事<span class="req">*</span></label>
+        <div class="choice-group" id="cg-t-add-3">
+          <label class="choice-label"><input type="checkbox" name="t-add-3" value="クロス貼替（天井あり）">クロス貼替（天井あり）</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-3" value="クロス貼替（天井なし）">クロス貼替（天井なし）</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-3" value="電気工事">電気工事</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-3" value="換気扇交換">換気扇交換</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-3" value="CF交換">CF交換</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-3" value="フローリング貼替">フローリング貼替</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-3" value="ソフト巾木交換">ソフト巾木交換</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-3" value="給水き機交換">給水き機交換</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-3" value="特になし">特になし</label>
+          <label class="choice-label"><input type="checkbox" name="t-add-3" value="その他">その他</label>
+        </div>
+        <div class="err-msg" id="e-t-add-3">1つ以上選択してください</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 給湯器 ====== -->
+  <div id="sec-boiler" style="display:none">
+    <div class="page-header">
+      <div class="page-badge">STEP 2 / 3 ｜ 🔥 給湯器交換</div>
+      <h2>給湯器交換の調査内容</h2>
+      <p>既存設備の状態とお施主様のご希望をご入力ください。</p>
+    </div>
+
+    <!-- 1台目（給湯器） -->
+    <div class="card" id="boiler-unit-1">
+      <div class="unit-header"><span class="unit-badge">1台目</span><span class="unit-label">既存製品について</span></div>
+      <div class="field">
+        <label class="field-label">品番<span class="opt">任意</span>
+          <span class="sub">すでにヒアリング済みの場合は未記入で問題ありません</span>
+        </label>
+        <input type="text" id="b-item-1" placeholder="例：RUF-A2003SAW">
+      </div>
+      <div class="field">
+        <label class="field-label">搬入経路について<span class="req">*</span></label>
+        <div class="choice-group" id="rg-b-route-1">
+          <label class="choice-label"><input type="radio" name="b-route-1" value="問題なし">問題なし</label>
+          <label class="choice-label"><input type="radio" name="b-route-1" value="非常に狭い">非常に狭い</label>
+          <label class="choice-label"><input type="radio" name="b-route-1" value="移動距離が長い">移動距離が長い</label>
+          <label class="choice-label"><input type="radio" name="b-route-1" value="その他">その他</label>
+          <label class="choice-label"><input type="radio" name="b-route-1" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-b-route-1">選択してください</div>
+      </div>
+      <div class="field">
+        <label class="field-label">配管設備の状況<span class="req">*</span></label>
+        <div class="choice-group" id="rg-b-pipe-1">
+          <label class="choice-label"><input type="radio" name="b-pipe-1" value="問題なし">問題なし</label>
+          <label class="choice-label"><input type="radio" name="b-pipe-1" value="その他">その他</label>
+          <label class="choice-label"><input type="radio" name="b-pipe-1" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-b-pipe-1">選択してください</div>
+      </div>
+      <div class="field">
+        <label class="field-label">追加工事の有無<span class="req">*</span></label>
+        <div class="choice-group" id="cg-b-add-1">
+          <label class="choice-label"><input type="checkbox" name="b-add-1" value="配管交換">配管交換</label>
+          <label class="choice-label"><input type="checkbox" name="b-add-1" value="電気工事">電気工事</label>
+          <label class="choice-label"><input type="checkbox" name="b-add-1" value="基礎工事">基礎工事</label>
+          <label class="choice-label"><input type="checkbox" name="b-add-1" value="搬入作業増">搬入作業増</label>
+          <label class="choice-label"><input type="checkbox" name="b-add-1" value="特になし">特になし</label>
+          <label class="choice-label"><input type="checkbox" name="b-add-1" value="その他">その他</label>
+          <label class="choice-label"><input type="checkbox" name="b-add-1" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-b-add-1">1つ以上選択してください</div>
+      </div>
+      <div class="divider"></div>
+      <div class="unit-header" style="margin-top:4px"><span class="unit-badge" style="background:#E85A2B">お施主様の希望</span></div>
+      <div class="field">
+        <label class="field-label">品番（あれば）<span class="opt">任意</span></label>
+        <input type="text" id="b-wish-1" placeholder="例：EQW37V">
+      </div>
+      <div class="field">
+        <label class="field-label">交換理由<span class="req">*</span></label>
+        <div class="choice-group" id="cg-b-reason-1">
+          <label class="choice-label"><input type="checkbox" name="b-reason-1" value="経年劣化のため">経年劣化のため</label>
+          <label class="choice-label"><input type="checkbox" name="b-reason-1" value="光熱費を下げたい">光熱費を下げたい</label>
+          <label class="choice-label"><input type="checkbox" name="b-reason-1" value="オール電化にしたい">オール電化にしたい</label>
+          <label class="choice-label"><input type="checkbox" name="b-reason-1" value="その他" onchange="toggleReasonOther(this)">その他</label>
+          <label class="choice-label"><input type="checkbox" name="b-reason-1" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-b-reason-1">1つ以上選択してください</div>
+        <div id="b-reason-other-wrap" style="display:none;margin-top:10px">
+          <input type="text" id="b-reason-other" placeholder="その他の理由を記入してください">
+          <div class="err-msg" id="e-b-reason-other">内容を入力してください</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">他に交換する給湯器はありますか？<span class="req">*</span>
+          <span class="sub">賃貸オーナー様など複数台ある場合は「ある」を選択してください</span>
+        </label>
+        <div class="choice-group" id="rg-b-extra-1">
+          <label class="choice-label"><input type="radio" name="b-extra-1" value="ある" onchange="toggleBoilerExtra(true)">ある</label>
+          <label class="choice-label"><input type="radio" name="b-extra-1" value="ない" onchange="toggleBoilerExtra(false)">ない</label>
+        </div>
+        <div class="err-msg" id="e-b-extra-1">選択してください</div>
+
+        <!-- 「ある」選択時に展開 -->
+        <div id="boiler-extra-detail" style="display:none;margin-top:14px;background:#F4F6FA;border-radius:10px;padding:16px;">
+          <div class="field" style="margin-bottom:14px">
+            <label class="field-label">合計何台交換しますか？<span class="req">*</span>
+              <span class="sub">1台目を含めた合計台数をご記入ください（例：3）</span>
+            </label>
+            <input type="text" id="b-total-units" placeholder="例：3" style="max-width:120px">
+            <div class="err-msg" id="e-b-total-units">台数を入力してください</div>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label class="field-label">2台目以降は1台目と同じ内容ですか？<span class="req">*</span></label>
+            <div class="choice-group" id="rg-b-same-spec">
+              <label class="choice-label"><input type="radio" name="b-same-spec" value="はい（同じ）" onchange="toggleUnit('boiler',2,false)">はい（同じ）</label>
+              <label class="choice-label"><input type="radio" name="b-same-spec" value="いいえ（異なる）" onchange="toggleUnit('boiler',2,true)">いいえ（異なる）</label>
+            </div>
+            <div class="err-msg" id="e-b-same-spec">選択してください</div>
+            <p class="hint" style="margin-top:6px">「いいえ」の場合は下の2台目入力欄にご記入ください</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2台目（給湯器） -->
+    <div class="card expand-block" id="boiler-unit-2">
+      <div class="unit-header"><span class="unit-badge">2台目</span><span class="unit-label">既存製品について</span></div>
+
+      <div class="field">
+        <label class="field-label">品番<span class="opt">任意</span>
+          <span class="sub">すでにヒアリング済みの場合は未記入で問題ありません</span>
+        </label>
+        <input type="text" id="b-item-2" placeholder="例：RUF-A2003SAW">
+      </div>
+      <div class="field">
+        <label class="field-label">搬入経路について<span class="req">*</span></label>
+        <div class="choice-group" id="rg-b-route-2">
+          <label class="choice-label"><input type="radio" name="b-route-2" value="問題なし">問題なし</label>
+          <label class="choice-label"><input type="radio" name="b-route-2" value="非常に狭い">非常に狭い</label>
+          <label class="choice-label"><input type="radio" name="b-route-2" value="移動距離が長い">移動距離が長い</label>
+          <label class="choice-label"><input type="radio" name="b-route-2" value="その他">その他</label>
+          <label class="choice-label"><input type="radio" name="b-route-2" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-b-route-2">選択してください</div>
+      </div>
+      <div class="field">
+        <label class="field-label">配管設備の状況<span class="req">*</span></label>
+        <div class="choice-group" id="rg-b-pipe-2">
+          <label class="choice-label"><input type="radio" name="b-pipe-2" value="問題なし">問題なし</label>
+          <label class="choice-label"><input type="radio" name="b-pipe-2" value="その他">その他</label>
+          <label class="choice-label"><input type="radio" name="b-pipe-2" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-b-pipe-2">選択してください</div>
+      </div>
+      <div class="field">
+        <label class="field-label">追加工事の有無<span class="req">*</span></label>
+        <div class="choice-group" id="cg-b-add-2">
+          <label class="choice-label"><input type="checkbox" name="b-add-2" value="配管交換">配管交換</label>
+          <label class="choice-label"><input type="checkbox" name="b-add-2" value="電気工事">電気工事</label>
+          <label class="choice-label"><input type="checkbox" name="b-add-2" value="基礎工事">基礎工事</label>
+          <label class="choice-label"><input type="checkbox" name="b-add-2" value="搬入作業増">搬入作業増</label>
+          <label class="choice-label"><input type="checkbox" name="b-add-2" value="特になし">特になし</label>
+          <label class="choice-label"><input type="checkbox" name="b-add-2" value="その他">その他</label>
+          <label class="choice-label"><input type="checkbox" name="b-add-2" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-b-add-2">1つ以上選択してください</div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="unit-header" style="margin-top:4px"><span class="unit-badge" style="background:#E85A2B">お施主様の希望</span></div>
+
+      <div class="field">
+        <label class="field-label">品番（あれば）<span class="opt">任意</span></label>
+        <input type="text" id="b-wish-2" placeholder="例：EQW37V">
+      </div>
+      <div class="field">
+        <label class="field-label">交換理由<span class="req">*</span></label>
+        <div class="choice-group" id="cg-b-reason-2">
+          <label class="choice-label"><input type="checkbox" name="b-reason-2" value="経年劣化のため">経年劣化のため</label>
+          <label class="choice-label"><input type="checkbox" name="b-reason-2" value="光熱費を下げたい">光熱費を下げたい</label>
+          <label class="choice-label"><input type="checkbox" name="b-reason-2" value="オール電化にしたい">オール電化にしたい</label>
+          <label class="choice-label"><input type="checkbox" name="b-reason-2" value="その他" onchange="toggleReasonOther2(this)">その他</label>
+          <label class="choice-label"><input type="checkbox" name="b-reason-2" value="不明">不明</label>
+        </div>
+        <div class="err-msg" id="e-b-reason-2">1つ以上選択してください</div>
+        <div id="b-reason-other-wrap-2" style="display:none;margin-top:10px">
+          <input type="text" id="b-reason-other-2" placeholder="その他の理由を記入してください">
+          <div class="err-msg" id="e-b-reason-other-2">内容を入力してください</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 内装・クロス ====== -->
+  <div id="sec-cloth" style="display:none">
+    <div class="page-header">
+      <div class="page-badge">STEP 2 / 3 ｜ 🖼️ 内装／クロス・床張り替え</div>
+      <h2>内装・クロスの調査内容</h2>
+      <p>対象のお部屋情報とお施主様のご希望をご入力ください。</p>
+    </div>
+
+    <!-- 入力方法の選択 -->
+    <div class="card">
+      <div class="sec-title"><div class="sec-title-icon">📋</div>入力方法を選択してください</div>
+      <div class="field">
+        <label class="field-label">報告方法<span class="req">*</span>
+          <span class="sub">複数箇所で複雑な依頼の場合は「自由記入」での報告をお願いします</span>
+        </label>
+        <div class="choice-group" id="rg-c-mode">
+          <label class="choice-label"><input type="radio" name="c-mode" value="detail" onchange="switchClothMode('detail')">選択式で入力</label>
+          <label class="choice-label"><input type="radio" name="c-mode" value="free" onchange="switchClothMode('free')">自由記入でまとめて伝える</label>
+        </div>
+        <div class="err-msg" id="e-c-mode">選択してください</div>
+      </div>
+    </div>
+
+    <!-- 自由記入モード -->
+    <div id="cloth-mode-free" style="display:none">
+      <div class="card">
+        <div class="sec-title"><div class="sec-title-icon">✏️</div>自由記入</div>
+        <div class="field">
+          <label class="field-label">現地調査の内容をまとめて記入してください<span class="req">*</span>
+            <span class="sub">部屋の広さ・張替箇所・施主の希望・追加工事など、わかる範囲でご記載ください</span>
+          </label>
+          <textarea id="c-free-text" placeholder="例）6畳リビングのクロス全面貼替。床はフローリング希望。家具3点移動必要。施主希望色：ホワイト系。巾木交換も希望。" style="min-height:120px"></textarea>
+          <div class="err-msg" id="e-c-free-text">内容を入力してください</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 選択式モード -->
+    <div id="cloth-mode-detail" style="display:none">
+      <div class="card">
+        <div class="sec-title"><div class="sec-title-icon">📏</div>お部屋の寸法</div>
+        <div class="field">
+          <label class="field-label">幅<span class="req">*</span><span class="opt" style="font-size:12px;color:#5A6E8A;font-weight:400;margin-left:6px">単位：mm（ミリ）</span></label>
+          <input type="text" id="c-width" placeholder="例：3600">
+          <div class="err-msg" id="e-c-width">入力してください</div>
+        </div>
+        <div class="field">
+          <label class="field-label">奥行<span class="req">*</span><span class="opt" style="font-size:12px;color:#5A6E8A;font-weight:400;margin-left:6px">単位：mm（ミリ）</span></label>
+          <input type="text" id="c-depth" placeholder="例：2700">
+          <div class="err-msg" id="e-c-depth">入力してください</div>
+        </div>
+        <div class="field">
+          <label class="field-label">天井高<span class="req">*</span><span class="opt" style="font-size:12px;color:#5A6E8A;font-weight:400;margin-left:6px">単位：mm（ミリ）</span></label>
+          <input type="text" id="c-ceiling" placeholder="例：2400">
+          <div class="err-msg" id="e-c-ceiling">入力してください</div>
+        </div>
+        <div class="field">
+          <label class="field-label">窓・ドアの数<span class="opt">任意</span>
+            <span class="sub">例）窓：中サイズ×1、ドア：1枚</span>
+          </label>
+          <input type="text" id="c-openings" placeholder="例：窓 中×1、ドア 1枚">
+        </div>
+        <div class="field">
+          <label class="field-label">クロス（壁紙）の張替え範囲<span class="req">*</span>
+            <span class="sub">この部屋のどこを張り替えるか選択してください（複数選択可）</span>
+          </label>
+          <div class="choice-group" id="cg-c-range">
+            <label class="choice-label"><input type="checkbox" name="c-range-area" value="壁全面">壁全面</label>
+            <label class="choice-label"><input type="checkbox" name="c-range-area" value="壁の一部" onchange="toggleRangePart(this,'')">壁の一部</label>
+            <label class="choice-label"><input type="checkbox" name="c-range-area" value="天井">天井</label>
+          </div>
+          <div class="err-msg" id="e-c-range">1つ以上選択してください</div>
+          <div id="c-range-part-wrap" style="display:none;margin-top:10px">
+            <input type="text" id="c-range-part" placeholder="例：入口側の壁一面のみ／窓側の壁">
+            <div class="err-msg" id="e-c-range-part">壁の一部の場所を記入してください</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title"><div class="sec-title-icon">💬</div>施主の希望</div>
+        <div class="field">
+          <label class="field-label">希望品番・色<span class="opt">任意</span>
+            <span class="sub">聞けていれば記載してください。なければ空欄で構いません。</span>
+          </label>
+          <input type="text" id="c-item-no" placeholder="例：SP-2853 ホワイト / ホワイト系希望">
+        </div>
+        <div class="field">
+          <label class="field-label">追加工事<span class="req">*</span></label>
+          <div class="choice-group" id="cg-c-add">
+            <label class="choice-label"><input type="checkbox" name="c-add" value="天井のクロス貼替">天井のクロス貼替</label>
+            <label class="choice-label"><input type="checkbox" name="c-add" value="フローリング貼替">フローリング貼替</label>
+            <label class="choice-label"><input type="checkbox" name="c-add" value="CF交換">CF交換</label>
+            <label class="choice-label"><input type="checkbox" name="c-add" value="ソフト巾木交換">ソフト巾木交換</label>
+            <label class="choice-label"><input type="checkbox" name="c-add" value="その他" onchange="toggleClothAddOther(this,'')">その他</label>
+            <label class="choice-label"><input type="checkbox" name="c-add" value="特になし">特になし</label>
+          </div>
+          <div class="err-msg" id="e-c-add">1つ以上選択してください</div>
+          <div id="c-add-other-wrap" style="display:none;margin-top:10px">
+            <input type="text" id="c-add-other" placeholder="その他の工事内容を記入してください">
+            <div class="err-msg" id="e-c-add-other">内容を入力してください</div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">家具の移動<span class="req">*</span></label>
+          <div class="choice-group" id="rg-c-furniture">
+            <label class="choice-label"><input type="radio" name="c-furniture" value="あり" onchange="toggleFurnitureCost(true)">あり</label>
+            <label class="choice-label"><input type="radio" name="c-furniture" value="なし" onchange="toggleFurnitureCost(false)">なし</label>
+            <label class="choice-label"><input type="radio" name="c-furniture" value="不明" onchange="toggleFurnitureCost(false)">不明</label>
+          </div>
+          <div class="err-msg" id="e-c-furniture">選択してください</div>
+          <div id="c-furniture-cost-wrap" style="display:none;margin-top:10px">
+            <label class="field-label" style="font-size:12px;font-weight:500;color:#5A6E8A">希望工賃（税抜）<span class="sub">移動費用の希望額を半角数字のみで入力してください（例：30000）</span></label>
+            <input type="text" id="c-furniture-cost" inputmode="numeric" placeholder="例：30000">
+            <div class="err-msg" id="e-c-furniture-cost">半角数字のみで入力してください</div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">追加で別のお部屋のクロス工事はありますか？<span class="req">*</span></label>
+          <div class="choice-group" id="rg-c-extra">
+            <label class="choice-label"><input type="radio" name="c-extra" value="ある" onchange="toggleClothRoom2(true)">ある</label>
+            <label class="choice-label"><input type="radio" name="c-extra" value="ない" onchange="toggleClothRoom2(false)">ない</label>
+          </div>
+          <div class="err-msg" id="e-c-extra">選択してください</div>
+        </div>
+
+        <!-- 2部屋目（展開） -->
+        <div id="cloth-room-2" class="expand-block" style="margin-top:16px">
+          <div class="unit-header"><span class="unit-badge">2部屋目</span><span class="unit-label">同じ内容で入力してください</span></div>
+
+          <div class="field">
+            <label class="field-label">幅<span class="req">*</span><span class="opt" style="font-size:12px;color:#5A6E8A;font-weight:400;margin-left:6px">単位：mm（ミリ）</span></label>
+            <input type="text" id="c-width-2" placeholder="例：3600">
+            <div class="err-msg" id="e-c-width-2">入力してください</div>
+          </div>
+          <div class="field">
+            <label class="field-label">奥行<span class="req">*</span><span class="opt" style="font-size:12px;color:#5A6E8A;font-weight:400;margin-left:6px">単位：mm（ミリ）</span></label>
+            <input type="text" id="c-depth-2" placeholder="例：2700">
+            <div class="err-msg" id="e-c-depth-2">入力してください</div>
+          </div>
+          <div class="field">
+            <label class="field-label">天井高<span class="req">*</span><span class="opt" style="font-size:12px;color:#5A6E8A;font-weight:400;margin-left:6px">単位：mm（ミリ）</span></label>
+            <input type="text" id="c-ceiling-2" placeholder="例：2400">
+            <div class="err-msg" id="e-c-ceiling-2">入力してください</div>
+          </div>
+          <div class="field">
+            <label class="field-label">窓・ドアの数<span class="opt">任意</span></label>
+            <input type="text" id="c-openings-2" placeholder="例：窓 中×1、ドア 1枚">
+          </div>
+          <div class="field">
+            <label class="field-label">希望品番・色<span class="opt">任意</span></label>
+            <input type="text" id="c-item-no-2" placeholder="例：SP-2853 ホワイト / ホワイト系希望">
+          </div>
+          <div class="field">
+            <label class="field-label">追加工事<span class="req">*</span></label>
+            <div class="choice-group" id="cg-c-add-2">
+              <label class="choice-label"><input type="checkbox" name="c-add-2" value="天井のクロス貼替">天井のクロス貼替</label>
+              <label class="choice-label"><input type="checkbox" name="c-add-2" value="フローリング貼替">フローリング貼替</label>
+              <label class="choice-label"><input type="checkbox" name="c-add-2" value="CF交換">CF交換</label>
+              <label class="choice-label"><input type="checkbox" name="c-add-2" value="ソフト巾木交換">ソフト巾木交換</label>
+              <label class="choice-label"><input type="checkbox" name="c-add-2" value="その他" onchange="toggleClothAddOther(this,'-2')">その他</label>
+              <label class="choice-label"><input type="checkbox" name="c-add-2" value="特になし">特になし</label>
+            </div>
+            <div class="err-msg" id="e-c-add-2">1つ以上選択してください</div>
+            <div id="c-add-other-wrap-2" style="display:none;margin-top:10px">
+              <input type="text" id="c-add-other-2" placeholder="その他の工事内容を記入してください">
+              <div class="err-msg" id="e-c-add-other-2">内容を入力してください</div>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label">家具の移動<span class="req">*</span></label>
+            <div class="choice-group" id="rg-c-furniture-2">
+              <label class="choice-label"><input type="radio" name="c-furniture-2" value="あり" onchange="toggleFurnitureCost2(true)">あり</label>
+              <label class="choice-label"><input type="radio" name="c-furniture-2" value="なし" onchange="toggleFurnitureCost2(false)">なし</label>
+              <label class="choice-label"><input type="radio" name="c-furniture-2" value="不明" onchange="toggleFurnitureCost2(false)">不明</label>
+            </div>
+            <div class="err-msg" id="e-c-furniture-2">選択してください</div>
+            <div id="c-furniture-cost-wrap-2" style="display:none;margin-top:10px">
+              <label class="field-label" style="font-size:12px;font-weight:500;color:#5A6E8A">希望工賃（税抜）<span class="sub">移動費用の希望額を半角数字のみで入力してください（例：30000）</span></label>
+              <input type="text" id="c-furniture-cost-2" inputmode="numeric" placeholder="例：30000">
+              <div class="err-msg" id="e-c-furniture-cost-2">半角数字のみで入力してください</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="nav-area" id="page2-nav">
+    <button class="btn-prev" onclick="goTo(1)">← 戻る</button>
+    <button class="btn-next" onclick="goPage2to3()">次へ：写真・備考の入力 →</button>
+  </div>
+</div><!-- /page-2 -->
+
+<!-- ===== PAGE 3: 写真・備考 ===== -->
+<div class="page" id="page-3">
+  <div class="page-header">
+    <div class="page-badge">STEP 3 / 3</div>
+    <h2>写真アップロード・備考</h2>
+    <p>写真は最低2枚以上アップロードしてください。<br>撮影できた写真を追加いただくと、より早く・正確に見積もりを作成できます。</p>
+  </div>
+
+  <!-- トイレ写真 -->
+  <div id="photo-sec-toilet" style="display:none">
+    <div id="photo-toilet-1-wrap"></div>
+    <div id="photo-toilet-2-wrap" style="display:none"></div>
+    <div id="photo-toilet-3-wrap" style="display:none"></div>
+  </div>
+
+  <!-- 給湯器写真 -->
+  <div id="photo-sec-boiler" style="display:none">
+    <div id="photo-boiler-1-wrap"></div>
+    <div id="photo-boiler-2-wrap" style="display:none"></div>
+  </div>
+
+  <!-- クロス写真 -->
+  <div id="photo-sec-cloth" style="display:none">
+    <div class="card">
+      <div class="photo-section">
+        <div class="photo-section-title">📸 内装・クロスの写真</div>
+        <div class="photo-guide">
+          <strong>以下の写真をできる限りご提出ください（見積もりの精度が上がります）</strong>
+          <ul>
+            <li>壁・床全体・天井・入口まわり・窓まわりの現状写真</li>
+            <li>張り替え希望箇所のアップ写真</li>
+          </ul>
+        </div>
+        <div class="photo-upload-box" id="photo-area-cloth">
+          <div class="photo-grid" id="photo-grid-cloth"></div>
+          <label class="photo-add-label" for="photo-input-cloth">＋ 写真を追加する</label>
+          <input type="file" id="photo-input-cloth" accept="image/*" multiple style="display:none">
+          <div class="photo-count-msg" id="photo-cnt-cloth">0枚選択中</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 共通エラー -->
+  <div class="err-msg" id="e-photo" style="margin-bottom:12px;font-size:13px">写真を2枚以上アップロードしてください</div>
+
+  <div class="card">
+    <div class="sec-title"><div class="sec-title-icon">📝</div>特記事項・備考</div>
+    <div class="field">
+      <label class="field-label">特記事項・その他共有事項<span class="opt">任意</span>
+        <span class="sub">例）〇万円以内なら契約できそう、養生の範囲、搬入搬出の難しさ、マンションEV無し、駐車場無し、管理規約の制約など</span>
+      </label>
+      <textarea id="notes" placeholder="特になければ空欄で構いません"></textarea>
+    </div>
+    <div class="info-box">
+      ℹ️ 確認が難しい項目は「不明」を選択していただいて構いません。なるべく多くの情報をご共有いただけると、見積もり精度の向上・受注率アップに繋がります。
+    </div>
+  </div>
+
+  <div class="nav-area">
+    <button class="btn-prev" onclick="goTo(2)">← 戻る</button>
+    <button class="btn-submit" onclick="doSubmit()">内容確認へ →</button>
+  </div>
+</div>
+
+<!-- ===== PAGE 4: 入力内容確認・工賃 ===== -->
+<div class="page" id="page-4">
+  <div class="page-header">
+    <div class="page-badge">STEP 4 / 4</div>
+    <h2>入力内容の確認</h2>
+    <p>送信前に入力内容と工賃をご確認ください。</p>
+  </div>
+
+  <div class="card" id="confirm-summary">
+    <div class="sec-title"><div class="sec-title-icon">📋</div>入力内容の確認</div>
+    <div id="confirm-body" style="font-size:13px;line-height:1.9;color:#2A3A50"></div>
+  </div>
+
+  <div class="card" id="confirm-wage-card">
+    <div class="sec-title"><div class="sec-title-icon">💴</div>工賃の目安</div>
+    <div id="confirm-wage" style="font-size:13px;line-height:1.9;color:#2A3A50"></div>
+    <div class="info-box" style="margin-top:12px">
+      ℹ️ 工賃は現地調査内容をもとに変動する場合があります。確定金額は別途ご連絡いたします。
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title"><div class="sec-title-icon">✏️</div>工賃への異議・コメント</div>
+    <div class="field">
+      <label class="field-label">工賃についてご意見があればご記入ください<span class="opt">任意</span>
+        <span class="sub">「〇〇の工事は別途見積もり希望」など、ご要望があれば自由にご記入ください</span>
+      </label>
+      <textarea id="wage-comment" placeholder="例）給湯器2台目の搬入が特殊なため、別途協議希望" style="min-height:80px"></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title"><div class="sec-title-icon">🔄</div>他の工事内容を追加する</div>
+    <div class="field">
+      <label class="field-label">他にも報告する工事はありますか？</label>
+      <div class="choice-group" id="rg-add-more">
+        <label class="choice-label"><input type="radio" name="add-more" value="yes" onchange="toggleAddMore(true)">ある（追加で入力する）</label>
+        <label class="choice-label"><input type="radio" name="add-more" value="no" onchange="toggleAddMore(false)">ない（このまま送信）</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-area">
+    <button class="btn-prev" onclick="goTo(3)">← 戻る</button>
+    <button class="btn-submit" id="final-submit-btn" onclick="finalSubmit()">✓ 報告を送信する</button>
+  </div>
+</div>
+
+<!-- ===== PAGE 5: 完了 ===== -->
+<div class="page" id="page-5">
+  <div class="card success-card">
+    <div class="success-icon">✅</div>
+    <h2>報告を送信しました</h2>
+    <p style="margin-top:12px">現地調査報告の送信が完了しました。<br>内容を確認次第、リノコ事務局よりご連絡いたします。</p>
+
+    <!-- 工賃サマリー -->
+    <div id="thanks-wage-summary" style="margin-top:20px;background:#0A1F44;border-radius:12px;padding:18px 20px;text-align:left;">
+      <div style="font-size:12px;color:#8AAED4;margin-bottom:6px;font-weight:500">今回の合計工賃（税抜・目安）</div>
+      <div id="thanks-total-amount" style="font-size:28px;font-weight:700;color:#fff;margin-bottom:10px">¥—</div>
+      <div id="thanks-work-list" style="font-size:12px;color:#B0C4DE;line-height:1.8;border-top:1px solid rgba(255,255,255,.15);padding-top:10px"></div>
+    </div>
+
+    <div style="margin-top:14px;background:#F0F4FF;border-radius:8px;padding:12px 15px;font-size:13px;color:#1A3A6E;line-height:1.7;text-align:left;">
+      📋 上記内容でお見積もりの作成を進めます。確定金額は別途ご連絡いたします。
+    </div>
+
+    <div id="thanks-wage-msg" style="display:none;margin-top:12px;background:#FFF6F2;border:1.5px solid #F5C4AE;border-radius:8px;padding:12px 15px;font-size:13px;color:#933A18;line-height:1.7;text-align:left;">
+      ⚠️ 工賃についてはおって担当者よりご連絡いたします。
+    </div>
+
+    <button onclick="restartForm()" style="margin-top:24px;width:100%;padding:13px;background:#E85A2B;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;font-family:'Noto Sans JP',sans-serif;cursor:pointer;">📋 続けて他の案件を報告する</button>
+  </div>
+</div>
+
+</div><!-- /container -->
+<div class="toast" id="toast">未入力の必須項目があります</div>
+
+<!-- エラーバナー（ページ上部固定） -->
+<div id="error-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:200;background:#DC3545;color:#fff;padding:12px 16px;box-shadow:0 2px 8px rgba(0,0,0,.3);">
+  <div style="max-width:680px;margin:0 auto;">
+    <div style="font-size:13px;font-weight:700;margin-bottom:6px;">⚠️ 以下の項目が未入力です。入力後に再度「次へ」を押してください。</div>
+    <ul id="error-banner-list" style="list-style:none;display:flex;flex-direction:column;gap:4px;"></ul>
+  </div>
+</div>
+
+<script>
+var currentPage = 1;
+var selectedWork = '';
+var photos = {};
+var errorItems = [];
+
+/* ===== 工事種別選択 ===== */
+function selectWork(type, el) {
+  document.querySelectorAll('.work-type-card').forEach(function(c){ c.classList.remove('selected'); });
+  el.classList.add('selected');
+  selectedWork = type;
+}
+
+/* ===== ページ移動 ===== */
+function goTo(n) {
+  document.getElementById('page-' + currentPage).classList.remove('active');
+  currentPage = n;
+  document.getElementById('page-' + n).classList.add('active');
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function updateProgress() {
+  for (var i = 1; i <= 4; i++) {
+    var sc = document.getElementById('sc-' + i);
+    var sl = document.getElementById('sl-' + i);
+    if (!sc) continue;
+    sc.classList.remove('active','done'); sl.classList.remove('active','done');
+    if (i < currentPage) { sc.classList.add('done'); sl.classList.add('done'); }
+    else if (i === currentPage) { sc.classList.add('active'); sl.classList.add('active'); }
+    if (i < 4) { var conn=document.getElementById('conn-' + i); if(conn) conn.classList.toggle('done', i < currentPage); }
+  }
+}
+
+/* ===== 台数展開 ===== */
+function toggleRangePart(checkbox, suffix) {
+  var wrap = document.getElementById('c-range-part-wrap' + suffix);
+  if (!wrap) return;
+  wrap.style.display = checkbox.checked ? 'block' : 'none';
+  if (!checkbox.checked) { var inp = document.getElementById('c-range-part' + suffix); if(inp) inp.value = ''; }
+}
+function toggleClothAddOther(checkbox, suffix) {
+  var wrap = document.getElementById('c-add-other-wrap' + suffix);
+  if (!wrap) return;
+  wrap.style.display = checkbox.checked ? 'block' : 'none';
+  if (!checkbox.checked) { var inp = document.getElementById('c-add-other' + suffix); if(inp) inp.value = ''; }
+}
+function toggleClothRoom2(open) {
+  var el = document.getElementById('cloth-room-2');
+  if (el) el.classList.toggle('open', open);
+  if (!open) {
+    // リセット
+    ['c-width-2','c-depth-2','c-ceiling-2','c-openings-2','c-item-no-2','c-furniture-cost-2'].forEach(function(id){
+      var el=document.getElementById(id); if(el) el.value='';
+    });
+    document.querySelectorAll('input[name="c-add-2"], input[name="c-furniture-2"]').forEach(function(el){
+      el.checked=false; var l=el.closest('.choice-label'); if(l) l.classList.remove('selected');
+    });
+    var w=document.getElementById('c-furniture-cost-wrap-2'); if(w) w.style.display='none';
+  }
+}
+function toggleFurnitureCost2(show) {
+  var wrap = document.getElementById('c-furniture-cost-wrap-2');
+  if (wrap) wrap.style.display = show ? 'block' : 'none';
+  if (!show) { var el=document.getElementById('c-furniture-cost-2'); if(el) el.value=''; }
+}
+function switchClothMode(mode) {
+  document.getElementById('cloth-mode-free').style.display = mode === 'free' ? 'block' : 'none';
+  document.getElementById('cloth-mode-detail').style.display = mode === 'detail' ? 'block' : 'none';
+}
+function toggleFurnitureCost(show) {
+  var wrap = document.getElementById('c-furniture-cost-wrap');
+  if (wrap) wrap.style.display = show ? 'block' : 'none';
+  if (!show) { var el = document.getElementById('c-furniture-cost'); if(el) el.value = ''; }
+}
+function toggleReasonOther2(checkbox) {
+  var wrap = document.getElementById('b-reason-other-wrap-2');
+  if (!wrap) return;
+  wrap.style.display = checkbox.checked ? 'block' : 'none';
+  if (!checkbox.checked) {
+    var inp = document.getElementById('b-reason-other-2');
+    if (inp) inp.value = '';
+  }
+}
+function toggleReasonOther(checkbox) {
+  var wrap = document.getElementById('b-reason-other-wrap');
+  if (!wrap) return;
+  wrap.style.display = checkbox.checked ? 'block' : 'none';
+  if (!checkbox.checked) {
+    var inp = document.getElementById('b-reason-other');
+    if (inp) inp.value = '';
+  }
+}
+
+function toggleBoilerExtra(open) {
+  var detail = document.getElementById('boiler-extra-detail');
+  if (detail) detail.style.display = open ? 'block' : 'none';
+  if (!open) {
+    // 「ない」を選んだら2台目も閉じる
+    toggleUnit('boiler', 2, false);
+    // 台数・同内容リセット
+    var tu = document.getElementById('b-total-units'); if(tu) tu.value='';
+    document.querySelectorAll('input[name="b-same-spec"]').forEach(function(r){r.checked=false;});
+    document.querySelectorAll('#rg-b-same-spec .choice-label').forEach(function(l){l.classList.remove('selected');});
+  }
+}
+
+function toggleUnit(type, num, open) {
+  var el = document.getElementById(type + '-unit-' + num);
+  if (el) el.classList.toggle('open', open);
+  var pw = document.getElementById('photo-' + type + '-' + num + '-wrap');
+  if (pw) pw.style.display = open ? 'block' : 'none';
+}
+
+/* ===== バリデーション補助 ===== */
+function gv(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+function gr(name) { var el = document.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : ''; }
+function gc(name) { return document.querySelectorAll('input[name="' + name + '"]:checked').length; }
+
+/* エラー表示：テキスト入力欄 */
+function setFieldError(inputId, errMsgId, isError, label) {
+  var inp = document.getElementById(inputId);
+  var msg = document.getElementById(errMsgId);
+  if (inp) {
+    inp.style.border = isError ? '2px solid #DC3545' : '';
+    inp.style.background = isError ? '#FFF8F8' : '';
+    var field = inp.closest('.field');
+    if (field) {
+      var lbl = field.querySelector('.field-label');
+      if (lbl) lbl.style.color = isError ? '#DC3545' : '';
+      field.style.background = isError ? '#FFF0F0' : '';
+      field.style.borderRadius = isError ? '8px' : '';
+      field.style.padding = isError ? '10px 12px' : '';
+      field.style.marginLeft = isError ? '-12px' : '';
+      field.style.marginRight = isError ? '-12px' : '';
+    }
+  }
+  if (msg) msg.style.display = isError ? 'block' : 'none';
+  if (isError && label) errorItems.push({ label: label, errMsgId: errMsgId });
+}
+
+/* エラー表示：ラジオ・チェックボックスグループ */
+function setGroupError(groupId, radioName, errMsgId, isError, label) {
+  var group = document.getElementById(groupId);
+  var msg = document.getElementById(errMsgId);
+  if (group) {
+    group.querySelectorAll('.choice-label').forEach(function(el) {
+      el.style.borderColor = isError ? '#DC3545' : '';
+      el.style.background = isError ? '#FFF0F0' : '';
+    });
+    var field = group.closest('.field');
+    if (field) {
+      var lbl = field.querySelector('.field-label');
+      if (lbl) lbl.style.color = isError ? '#DC3545' : '';
+      field.style.background = isError ? '#FFF0F0' : '';
+      field.style.borderRadius = isError ? '8px' : '';
+      field.style.padding = isError ? '10px 12px' : '';
+      field.style.marginLeft = isError ? '-12px' : '';
+      field.style.marginRight = isError ? '-12px' : '';
+    }
+  }
+  if (msg) msg.style.display = isError ? 'block' : 'none';
+  if (isError && label) errorItems.push({ label: label, errMsgId: errMsgId });
+}
+
+/* 全エラーリセット */
+function clearAllErrors() {
+  errorItems = [];
+  document.querySelectorAll('.field').forEach(function(f) {
+    f.style.background = ''; f.style.borderRadius = ''; f.style.padding = '';
+    f.style.marginLeft = ''; f.style.marginRight = '';
+    var lbl = f.querySelector('.field-label'); if (lbl) lbl.style.color = '';
+  });
+  document.querySelectorAll('.err-msg').forEach(function(e) { e.style.display = 'none'; });
+  document.querySelectorAll('input[type=text],input[type=date],select,textarea').forEach(function(el) {
+    el.style.border = ''; el.style.background = '';
+  });
+  document.querySelectorAll('.choice-label').forEach(function(el) {
+    el.style.borderColor = ''; el.style.background = '';
+  });
+  var banner = document.getElementById('error-banner');
+  if (banner) banner.style.display = 'none';
+  var cont = document.querySelector('.container');
+  if (cont) cont.style.marginTop = '24px';
+}
+
+/* エラーバナー表示 */
+function showErrorBanner() {
+  var banner = document.getElementById('error-banner');
+  var list = document.getElementById('error-banner-list');
+  if (!banner || !list) return;
+  list.innerHTML = '';
+  errorItems.forEach(function(e) {
+    var li = document.createElement('li');
+    li.style.cssText = 'cursor:pointer;padding:2px 0;font-size:13px;display:flex;gap:6px;align-items:center;';
+    li.innerHTML = '→ ' + e.label;
+    li.onclick = (function(eid) { return function() {
+      var msg = document.getElementById(eid);
+      if (msg) { var f = msg.parentElement || msg; f.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+    }; })(e.errMsgId);
+    list.appendChild(li);
+  });
+  banner.style.display = 'block';
+  var cont = document.querySelector('.container');
+  if (cont) cont.style.marginTop = (banner.offsetHeight + 24) + 'px';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg || '未入力の必須項目があります';
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 3000);
+}
+
+/* ===== PAGE 1 → 2 ===== */
+function goPage1to2() {
+  clearAllErrors();
+  var ok = true;
+  [['company','e-company','会社名'],['staff','e-staff','担当者名'],['owner','e-owner','お施主様名'],['survey-date','e-survey-date','調査実施日']].forEach(function(f) {
+    var v = gv(f[0]); setFieldError(f[0], f[1], !v, !v ? f[2] : null); if (!v) ok = false;
+  });
+  if (!selectedWork) {
+    var msg = document.getElementById('e-work-type');
+    if (msg) msg.style.display = 'block';
+    errorItems.push({ label: '工事内容', errMsgId: 'e-work-type' });
+    ok = false;
+  }
+  if (!ok) { showErrorBanner(); return; }
+  ['toilet','boiler','cloth'].forEach(function(k){
+    document.getElementById('sec-'+k).style.display = (k===selectedWork)?'block':'none';
+    var ps = document.getElementById('photo-sec-'+k);
+    if (ps) ps.style.display = (k===selectedWork)?'block':'none';
+  });
+  goTo(2);
+}
+
+/* ===== PAGE 2 → 3 ===== */
+function goPage2to3() {
+  clearAllErrors();
+  var ok = true;
+
+  if (selectedWork === 'toilet') {
+    var nums = [1];
+    if (document.getElementById('toilet-unit-2').classList.contains('open')) nums.push(2);
+    if (document.getElementById('toilet-unit-3').classList.contains('open')) nums.push(3);
+    nums.forEach(function(n) {
+      var u = 'トイレ' + n + '台目';
+      [['rg-toilet-type-'+n,'toilet-type-'+n,'e-toilet-type-'+n,u+'：トイレの種類'],
+       ['rg-drain-type-'+n,'drain-type-'+n,'e-drain-type-'+n,u+'：排水芯'],
+       ['rg-t-price-'+n,'t-price-'+n,'e-t-price-'+n,u+'：希望価格帯'],
+       ['rg-t-sink-'+n,'t-sink-'+n,'e-t-sink-'+n,u+'：手洗い有無'],
+       ['rg-t-grade-'+n,'t-grade-'+n,'e-t-grade-'+n,u+'：便座グレード'],
+       ['rg-t-func-'+n,'t-func-'+n,'e-t-func-'+n,u+'：便座の機能']
+      ].forEach(function(g){ var e=!gr(g[1]); setGroupError(g[0],g[1],g[2],e,e?g[3]:null); if(e) ok=false; });
+      if (n < 3) { var e=!gr('t-extra-'+n); setGroupError('rg-t-extra-'+n,'t-extra-'+n,'e-t-extra-'+n,e,e?u+'：他に交換するトイレ':null); if(e) ok=false; }
+      [['cg-t-maker-'+n,'t-maker-'+n,'e-t-maker-'+n,u+'：希望メーカー'],
+       ['cg-t-add-'+n,'t-add-'+n,'e-t-add-'+n,u+'：追加工事']
+      ].forEach(function(g){ var e=!gc(g[1]); setGroupError(g[0],g[1],g[2],e,e?g[3]:null); if(e) ok=false; });
+      [['t-depth-'+n,'e-t-depth-'+n,u+'：設置場所の奥行き'],
+       ['t-width-'+n,'e-t-width-'+n,u+'：設置場所の幅'],
+       ['t-height-'+n,'e-t-height-'+n,u+'：設置場所の天井高']
+      ].forEach(function(f){ var v=gv(f[0]); setFieldError(f[0],f[1],!v,!v?f[2]:null); if(!v) ok=false; });
+    });
+  }
+
+  if (selectedWork === 'boiler') {
+    var bnums = [1];
+    if (document.getElementById('boiler-unit-2').classList.contains('open')) bnums.push(2);
+    bnums.forEach(function(n) {
+      var u = '給湯器' + n + '台目';
+      var e1=!gr('b-route-'+n); setGroupError('rg-b-route-'+n,'b-route-'+n,'e-b-route-'+n,e1,e1?u+'：搬入経路':null); if(e1) ok=false;
+      var e2=!gc('b-add-'+n); setGroupError('cg-b-add-'+n,'b-add-'+n,'e-b-add-'+n,e2,e2?u+'：追加工事の有無':null); if(e2) ok=false;
+      if (n===1) {
+        // 「ある」選択時の台数・同内容確認（n===1のみ）
+        var e5=!gr('b-extra-1'); setGroupError('rg-b-extra-1','b-extra-1','e-b-extra-1',e5,e5?u+'：他に交換する給湯器':null); if(e5) ok=false;
+      }
+    });
+  }
+
+  if (selectedWork === 'cloth') {
+    // 入力モード選択は必須
+    var cmode = gr('c-mode');
+    if (!cmode) {
+      setGroupError('rg-c-mode','c-mode','e-c-mode',true,'クロス：入力方法の選択');
+      ok = false;
+    }
+    if (cmode === 'free') {
+      var fv = gv('c-free-text');
+      setFieldError('c-free-text','e-c-free-text',!fv,!fv?'クロス：自由記入内容':null);
+      if (!fv) ok = false;
+    }
+    if (cmode === 'detail') {
+      [['c-width','e-c-width','クロス：お部屋の幅'],
+       ['c-depth','e-c-depth','クロス：お部屋の奥行'],
+       ['c-ceiling','e-c-ceiling','クロス：天井高']
+      ].forEach(function(f){
+        var v=gv(f[0]); setFieldError(f[0],f[1],!v,!v?f[2]:null); if(!v) ok=false;
+      });
+      var crange=!gc('c-range-area'); setGroupError('cg-c-range','c-range-area','e-c-range',crange,crange?'クロス：張替え範囲':null); if(crange) ok=false;
+      // 「壁の一部」選択時は場所の記入必須
+      var partChecked=document.querySelector('input[name="c-range-area"][value="壁の一部"]:checked');
+      if(partChecked){ var pv=gv('c-range-part'); setFieldError('c-range-part','e-c-range-part',!pv,!pv?'クロス：壁の一部の場所':null); if(!pv) ok=false; }
+      // 家具移動「あり」で希望工賃が入力されている場合、数字のみチェック
+      if(gr('c-furniture')==='あり'){
+        var fc=gv('c-furniture-cost');
+        if(fc && !/^[0-9]+$/.test(fc)){ setFieldError('c-furniture-cost','e-c-furniture-cost',true,'家具移動の希望工賃（半角数字のみ）'); ok=false; }
+        else { setFieldError('c-furniture-cost','e-c-furniture-cost',false,null); }
+      }
+      var ca=!gc('c-add'); setGroupError('cg-c-add','c-add','e-c-add',ca,ca?'クロス：追加工事':null); if(ca) ok=false;
+      var caOther=document.querySelector('input[name="c-add"][value="その他"]:checked');
+      if(caOther){ var cov=gv('c-add-other'); setFieldError('c-add-other','e-c-add-other',!cov,!cov?'クロス：追加工事その他詳細':null); if(!cov) ok=false; }
+      var cf=!gr('c-furniture'); setGroupError('rg-c-furniture','c-furniture','e-c-furniture',cf,cf?'クロス：家具の移動':null); if(cf) ok=false;
+      var cex=!gr('c-extra'); setGroupError('rg-c-extra','c-extra','e-c-extra',cex,cex?'クロス：追加で別のお部屋の工事':null); if(cex) ok=false;
+    }
+  }
+
+  if (!ok) { showErrorBanner(); return; }
+  buildPhotoSections();
+  goTo(3);
+}
+
+/* ===== 写真欄の動的生成 ===== */
+var TOILET_GUIDE = ['室内全景、便器正面、便器側面','便器・タンク・便座の品番シール','排水部分、給水栓の位置、コンセントの有無と位置','（内装ありの場合）壁・床全体・天井・入口まわり・窓まわり'];
+var BOILER_GUIDE = ['給湯器の全体写真（配管部分を含む）','銘板シールのアップ（型番・製造年月が確認できるもの）','配管接続部・ガスコックのアップ','台所および浴室リモコンの現状写真','（エコジョーズの場合）ドレン排水予定場所','給湯器設置周囲の様子（壁面・床面・上下左右のスペース感がわかる写真）'];
+
+function buildPhotoSections() {
+  if (selectedWork === 'toilet') {
+    var nums=[1];
+    if(document.getElementById('toilet-unit-2').classList.contains('open')) nums.push(2);
+    if(document.getElementById('toilet-unit-3').classList.contains('open')) nums.push(3);
+    nums.forEach(function(n){
+      var wrap=document.getElementById('photo-toilet-'+n+'-wrap');
+      wrap.style.display='block';
+      if(!wrap.querySelector('.card')){ var key='toilet-'+n; photos[key]=photos[key]||[]; wrap.innerHTML=buildPhotoCard('トイレ '+n+'台目 の写真',key,TOILET_GUIDE,n===1); bindPhotoInput(key); }
+    });
+  }
+  if (selectedWork === 'boiler') {
+    var bnums=[1];
+    if(document.getElementById('boiler-unit-2').classList.contains('open')) bnums.push(2);
+    bnums.forEach(function(n){
+      var wrap=document.getElementById('photo-boiler-'+n+'-wrap');
+      wrap.style.display='block';
+      if(!wrap.querySelector('.card')){ var key='boiler-'+n; photos[key]=photos[key]||[]; wrap.innerHTML=buildPhotoCard('給湯器 '+n+'台目 の写真',key,BOILER_GUIDE,n===1); bindPhotoInput(key); }
+    });
+  }
+  if (selectedWork === 'cloth') { var key='cloth'; photos[key]=photos[key]||[]; renderPhotoGrid(key); bindPhotoInput(key); }
+}
+
+function buildPhotoCard(title,key,guide,isFirst) {
+  var gh=guide.map(function(g){return '<li>'+g+'</li>';}).join('');
+  var req='<span style="color:#DC3545;font-weight:700">（最低2枚以上必須）</span>';
+  var errId='e-photo-'+key;
+  return '<div class="card"><div class="photo-section">'
+    +'<div class="photo-section-title">📸 '+title+' '+req+'</div>'
+    +'<div class="photo-guide"><strong>以下の写真があると見積もりをより早く・正確に作成できます</strong><ul>'+gh+'</ul>'
+    +'<div style="margin-top:6px;font-size:11px;color:#8A9AB0">📝 撮影が難しい場合は特記事項欄にテキストでお知らせください</div></div>'
+    +'<div class="photo-upload-box" id="photo-area-'+key+'">'
+    +'<div class="photo-grid" id="photo-grid-'+key+'"></div>'
+    +'<label class="photo-add-label" for="photo-input-'+key+'">＋ 写真を追加する</label>'
+    +'<input type="file" id="photo-input-'+key+'" accept="image/*" multiple style="display:none">'
+    +'<div class="photo-count-msg" id="photo-cnt-'+key+'">0枚選択中</div>'
+    +'</div>'
+    +'<div id="'+errId+'" style="display:none;color:#DC3545;font-size:12px;font-weight:700;margin-top:6px;">写真を2枚以上アップロードしてください</div>'
+    +'</div></div>';
+}
+
+function bindPhotoInput(key) {
+  var input=document.getElementById('photo-input-'+key);
+  if(!input||input._bound) return;
+  input._bound=true;
+  input.addEventListener('change',function(e){
+    Array.from(e.target.files).forEach(function(f){ var r=new FileReader(); r.onload=function(ev){photos[key].push(ev.target.result);renderPhotoGrid(key);}; r.readAsDataURL(f); });
+    this.value='';
+  });
+}
+
+function renderPhotoGrid(key) {
+  var grid=document.getElementById('photo-grid-'+key); if(!grid) return;
+  grid.innerHTML='';
+  (photos[key]||[]).forEach(function(src,i){
+    var div=document.createElement('div'); div.className='photo-thumb';
+    div.innerHTML='<img src="'+src+'" alt="写真'+(i+1)+'"><button class="del-btn" onclick="removePhoto(\''+key+'\','+i+')" type="button">×</button>';
+    grid.appendChild(div);
+  });
+  var cnt=document.getElementById('photo-cnt-'+key); if(!cnt) return;
+  var n=(photos[key]||[]).length;
+  cnt.innerHTML=n+'枚選択中'+(n>=2?' <span class="ok">✓ OK</span>':'');
+}
+
+function removePhoto(key,i){ photos[key].splice(i,1); renderPhotoGrid(key); }
+
+function totalPhotos(){ var t=0; Object.keys(photos).forEach(function(k){t+=(photos[k]||[]).length;}); return t; }
+
+/* ===== 送信 ===== */
+// 工賃テーブル
+var WAGE_TABLE = {
+  toilet: { base: 43000, label: 'トイレ交換', items: [
+    {name:'給排水設備工事',price:40000},{name:'電気設備工事',price:25000},
+    {name:'換気設備工事',price:20000},{name:'水栓金具・付属品',price:20000},
+    {name:'防水・断熱工事',price:50000}
+  ]},
+  boiler_eco: { base: 100000, label: '給湯器交換（エコキュート）' },
+  boiler_ej:  { base: 43000,  label: '給湯器交換（EJ）' },
+  boiler_std: { base: 38000,  label: '給湯器交換（非エコ）' },
+  cloth: { base: null, label: 'クロス・床張り替え', items: [
+    {name:'クロス（量産）',unit:'850円/㎡'},{name:'クロス（1000番）',unit:'1,000円/㎡'},
+    {name:'クッションフロア張替え',unit:'2,500円/㎡'},{name:'フローリング張替え',unit:'8,000円/㎡'},
+    {name:'ソフト巾木',unit:'500円/枚'}
+  ]}
+};
+
+function fmt(n){ return '¥' + Math.round(n).toLocaleString('ja-JP'); }
+
+// トイレ追加工事：固定額工賃マップ（税抜）
+var TOILET_ADD_PRICE = {
+  '給排水設備工事':40000,'電気設備工事':25000,'換気設備工事':20000,
+  '水栓金具・付属品':20000,'防水・断熱工事':50000,
+  '電気工事':25000,'換気扇交換':20000,'給水き機交換':20000
+};
+// 面積・枚数で計算する工事の単価（税抜）
+// type: area=㎡単価, sheet=枚単価
+var AREA_WORK = {
+  '壁クロス':{type:'area',price:850,unit:'㎡',note:'量産クロス850円/㎡（壁4面−開口部控除）'},
+  'クロス貼替（天井あり）':{type:'area',price:850,unit:'㎡',note:'量産クロス850円/㎡（壁+天井）'},
+  'クロス貼替（天井なし）':{type:'area',price:850,unit:'㎡',note:'量産クロス850円/㎡（壁のみ）'},
+  '天井のクロス貼替':{type:'area',price:850,unit:'㎡',note:'量産クロス850円/㎡（天井）'},
+  'CF交換':{type:'area',price:2500,unit:'㎡',note:'クッションフロア2,500円/㎡'},
+  'フローリング貼替':{type:'area',price:8000,unit:'㎡',note:'フローリング8,000円/㎡'},
+  'ソフト巾木交換':{type:'sheet',price:500,unit:'枚',note:'ソフト巾木500円/枚'}
+};
+
+// 面積入力値を保持
+var areaInputs = {}; // key -> 数量
+var areaAutoCalc = {}; // key -> 自動計算した初期値（参考表示用）
+
+// mm寸法から面積（㎡）・枚数を自動計算
+// 壁面積 =（幅+奥行）×2 × 天井高、床面積 = 幅×奥行（窓ドアは引かない）
+function calcArea(workName, widthMm, depthMm, heightMm, openingDeduct) {
+  var w = parseFloat(widthMm)/1000 || 0;
+  var d = parseFloat(depthMm)/1000 || 0;
+  var h = parseFloat(heightMm)/1000 || 0;
+  var deduct = parseFloat(openingDeduct);
+  if (isNaN(deduct)) deduct = 1.6; // デフォルト開口部控除1.6㎡
+  if (workName === '壁クロス') {
+    // 壁4面の展開面積 − 開口部控除（見積もりツールと同じ計算）
+    var v = (w + d) * 2 * h - deduct;
+    if (v < 0) v = 0;
+    return Math.round(v * 10) / 10;
+  }
+  if (workName === 'クロス貼替（天井あり）') {
+    // 壁4面 + 天井（トイレ追加工事用）
+    return Math.round(((w + d) * 2 * h + w * d) * 10) / 10;
+  }
+  if (workName === 'クロス貼替（天井なし）') {
+    // 壁4面のみ（トイレ追加工事用）
+    return Math.round((w + d) * 2 * h * 10) / 10;
+  }
+  if (workName === '天井のクロス貼替') {
+    // 天井面積 = 幅 × 奥行
+    return Math.round(w * d * 10) / 10;
+  }
+  if (workName === 'CF交換' || workName === 'フローリング貼替') {
+    // 床面積
+    return Math.round(w * d * 10) / 10;
+  }
+  if (workName === 'ソフト巾木交換') {
+    // 巾木は周長を1.82m(1枚)で割って枚数概算
+    var perimeter = (w + d) * 2;
+    return Math.ceil(perimeter / 1.82);
+  }
+  return 0;
+}
+
+function buildConfirmPage() {
+  var body = document.getElementById('confirm-body');
+  var wage = document.getElementById('confirm-wage');
+  if (!body || !wage) return;
+
+  var html = '';
+
+  // 基本情報
+  html += '<div style="margin-bottom:14px"><strong>【基本情報】</strong><br>';
+  html += '会社名：' + (gv('company')||'—') + '<br>';
+  html += '担当者：' + (gv('staff')||'—') + '<br>';
+  html += 'お施主様：' + (gv('owner')||'—') + '<br>';
+  html += '調査日：' + (gv('survey-date')||'—') + '</div>';
+
+  // 工賃計算用に「面積工事リスト」を集める
+  var fixedRows = [];   // {label, amount}
+  var areaRows = [];    // {key, label, price, unit, note}
+  var total = 0;
+
+  allWorkItems.forEach(function(item, idx) {
+    html += '<div style="margin-bottom:12px;padding:12px;background:#F4F6FA;border-radius:8px">';
+    html += '<strong>【工事' + (idx+1) + '：' + getWorkLabel(item.type) + '】</strong><br>';
+
+    if (item.type === 'toilet') {
+      var tnums = [1];
+      if (document.getElementById('toilet-unit-2').classList.contains('open')) tnums.push(2);
+      if (document.getElementById('toilet-unit-3').classList.contains('open')) tnums.push(3);
+      tnums.forEach(function(i) {
+        html += '<div style="margin:6px 0 4px;font-weight:700;color:#0A1F44">■ ' + i + '台目</div>';
+        html += '種類：' + (gr('toilet-type-'+i)||'—') + '<br>';
+        html += '排水芯：' + (gr('drain-type-'+i)||'—') + '<br>';
+        html += '寸法：幅' + (gv('t-width-'+i)||'—') + 'mm × 奥行' + (gv('t-depth-'+i)||'—') + 'mm × 天井高' + (gv('t-height-'+i)||'—') + 'mm<br>';
+        html += 'メーカー：' + (getChecked('t-maker-'+i)||'—') + '<br>';
+        if (gv('t-series-'+i)) html += 'シリーズ：' + gv('t-series-'+i) + '<br>';
+        html += '価格帯：' + (gr('t-price-'+i)||'—') + '<br>';
+        html += '手洗い：' + (gr('t-sink-'+i)||'—') + '<br>';
+        html += '便座グレード：' + (gr('t-grade-'+i)||'—') + '<br>';
+        html += '便座機能：' + (gr('t-func-'+i)||'—') + '<br>';
+        if (gv('t-item-'+i)) html += '品番：' + gv('t-item-'+i) + '<br>';
+        var adds = getChecked('t-add-'+i);
+        html += '追加工事：' + (adds||'—') + '<br>';
+
+        fixedRows.push({label:'トイレ交換 '+i+'台目 基本工賃', amount:43000});
+        total += 43000;
+        if (adds) {
+          adds.split('、').forEach(function(a){
+            if (TOILET_ADD_PRICE[a]) {
+              fixedRows.push({label:'　└ '+a+'（'+i+'台目）', amount:TOILET_ADD_PRICE[a]});
+              total += TOILET_ADD_PRICE[a];
+            } else if (AREA_WORK[a]) {
+              var key = 'toilet'+i+'_'+a;
+              var autoQ = calcArea(a, gv('t-width-'+i), gv('t-depth-'+i), gv('t-height-'+i));
+              if (areaInputs[key] === undefined && autoQ > 0) { areaInputs[key] = autoQ; }
+              areaAutoCalc[key] = autoQ;
+              areaRows.push({key:key, label:a+'（トイレ'+i+'台目）', price:AREA_WORK[a].price, unit:AREA_WORK[a].unit, note:AREA_WORK[a].note, auto:autoQ});
+            }
+          });
+        }
+      });
+    }
+
+    if (item.type === 'boiler') {
+      var bnums = [1];
+      if (document.getElementById('boiler-unit-2').classList.contains('open')) bnums.push(2);
+      bnums.forEach(function(i) {
+        html += '<div style="margin:6px 0 4px;font-weight:700;color:#0A1F44">■ ' + i + '台目</div>';
+        if (gv('b-item-'+i)) html += '既存品番：' + gv('b-item-'+i) + '<br>';
+        html += '搬入経路：' + (gr('b-route-'+i)||'—') + '<br>';
+        html += '配管状況：' + (gr('b-pipe-'+i)||'—') + '<br>';
+        html += '追加工事：' + (getChecked('b-add-'+i)||'—') + '<br>';
+        var reason = getChecked('b-reason-'+i);
+        html += '交換理由：' + (reason||'—');
+        var otherTxt = gv('b-reason-other-'+i);
+        if (otherTxt) html += '（その他：'+otherTxt+'）';
+        html += '<br>';
+      });
+      if (gr('b-extra-1') === 'ある') {
+        html += '<div style="margin-top:6px;font-size:12px;color:#5A6E8A">合計台数：' + (gv('b-total-units')||'—') + '台 ／ 2台目以降：' + (gr('b-same-spec')||'—') + '</div>';
+      }
+      // 給湯器本体工賃は種類により変動するため別途扱い
+      fixedRows.push({label:'給湯器交換（エコキュート¥100,000／EJ¥43,000／非エコ¥38,000）', amount:null});
+    }
+
+    if (item.type === 'cloth') {
+      var mode = gr('c-mode');
+      html += '入力方法：' + (mode==='free'?'自由記入':'選択式') + '<br>';
+      if (mode === 'detail') {
+        html += '寸法：幅' + (gv('c-width')||'—') + 'mm × 奥行' + (gv('c-depth')||'—') + 'mm × 天井高' + (gv('c-ceiling')||'—') + 'mm<br>';
+        if (gv('c-openings')) html += '窓・ドア：' + gv('c-openings') + '<br>';
+        var crangeVal = getChecked('c-range-area'); if (crangeVal) { html += 'クロス張替え範囲：' + crangeVal; if (gv('c-range-part')) html += '（壁の一部：'+gv('c-range-part')+'）'; html += '<br>'; }
+        if (gv('c-item-no')) html += '希望品番・色：' + gv('c-item-no') + '<br>';
+        var cadd = getChecked('c-add');
+        html += '追加工事：' + (cadd||'—');
+        if (gv('c-add-other')) html += '（その他：' + gv('c-add-other') + '）';
+        html += '<br>';
+        html += '家具移動：' + (gr('c-furniture')||'—');
+        if (gv('c-furniture-cost')) html += '（希望工賃：'+gv('c-furniture-cost')+'）';
+        html += '<br>';
+        // 家具移動の希望工賃を加算
+        if (gr('c-furniture')==='あり') {
+          var fcost = parseInt(gv('c-furniture-cost'),10);
+          if (fcost && fcost > 0) { fixedRows.push({label:'　└ 家具移動費', amount:fcost}); total += fcost; }
+        }
+        // 張替え範囲に壁が含まれる場合は壁クロスを計上
+        var crange1 = getChecked('c-range-area');
+        if (crange1 && (crange1.indexOf('壁全面')>=0 || crange1.indexOf('壁の一部')>=0)) {
+          var kw1='cloth1_壁クロス';
+          var aw1=calcArea('壁クロス', gv('c-width'), gv('c-depth'), gv('c-ceiling'), areaInputs['deduct_cloth1']);
+          if (areaInputs[kw1] === undefined && aw1 > 0) { areaInputs[kw1]=aw1; }
+          areaAutoCalc[kw1]=aw1;
+          areaRows.push({key:kw1, label:'壁クロス（1部屋目）', price:850, unit:'㎡', note:AREA_WORK['壁クロス'].note, auto:aw1, deductKey:'deduct_cloth1', dims:{w:gv('c-width'),d:gv('c-depth'),h:gv('c-ceiling')}});
+        }
+        if (cadd) {
+          cadd.split('、').forEach(function(a){
+            if (AREA_WORK[a]) {
+              var k1='cloth1_'+a;
+              var aq1=calcArea(a, gv('c-width'), gv('c-depth'), gv('c-ceiling'));
+              if (areaInputs[k1] === undefined && aq1 > 0) { areaInputs[k1]=aq1; }
+              areaAutoCalc[k1]=aq1;
+              areaRows.push({key:k1, label:a+'（1部屋目）', price:AREA_WORK[a].price, unit:AREA_WORK[a].unit, note:AREA_WORK[a].note, auto:aq1});
+            }
+          });
+        }
+        if (gr('c-extra') === 'ある') {
+          html += '<div style="margin:6px 0 4px;font-weight:700;color:#0A1F44">■ 2部屋目</div>';
+          html += '寸法：幅' + (gv('c-width-2')||'—') + 'mm × 奥行' + (gv('c-depth-2')||'—') + 'mm × 天井高' + (gv('c-ceiling-2')||'—') + 'mm<br>';
+          if (gv('c-item-no-2')) html += '希望品番・色：' + gv('c-item-no-2') + '<br>';
+          if (gr('c-furniture-2')==='あり') {
+            var fcost2 = parseInt(gv('c-furniture-cost-2'),10);
+            if (fcost2 && fcost2 > 0) { fixedRows.push({label:'　└ 家具移動費（2部屋目）', amount:fcost2}); total += fcost2; }
+          }
+          var cadd2 = getChecked('c-add-2');
+          html += '追加工事：' + (cadd2||'—');
+          if (gv('c-add-other-2')) html += '（その他：' + gv('c-add-other-2') + '）';
+          html += '<br>';
+          html += '家具移動：' + (gr('c-furniture-2')||'—') + '<br>';
+          // 2部屋目も壁クロス（張替え範囲は1部屋目と同じ判定を使う簡易版：常に壁クロス計上）
+          var kw2='cloth2_壁クロス';
+          var aw2=calcArea('壁クロス', gv('c-width-2'), gv('c-depth-2'), gv('c-ceiling-2'), areaInputs['deduct_cloth2']);
+          if (areaInputs[kw2] === undefined && aw2 > 0) { areaInputs[kw2]=aw2; }
+          areaAutoCalc[kw2]=aw2;
+          areaRows.push({key:kw2, label:'壁クロス（2部屋目）', price:850, unit:'㎡', note:AREA_WORK['壁クロス'].note, auto:aw2, deductKey:'deduct_cloth2', dims:{w:gv('c-width-2'),d:gv('c-depth-2'),h:gv('c-ceiling-2')}});
+          if (cadd2) {
+            cadd2.split('、').forEach(function(a){
+              if (AREA_WORK[a]) {
+                var k2='cloth2_'+a;
+                var aq2=calcArea(a, gv('c-width-2'), gv('c-depth-2'), gv('c-ceiling-2'));
+                if (areaInputs[k2] === undefined && aq2 > 0) { areaInputs[k2]=aq2; }
+                areaAutoCalc[k2]=aq2;
+                areaRows.push({key:k2, label:a+'（2部屋目）', price:AREA_WORK[a].price, unit:AREA_WORK[a].unit, note:AREA_WORK[a].note, auto:aq2});
+              }
+            });
+          }
+        }
+      } else {
+        html += '内容：' + (gv('c-free-text')||'—') + '<br>';
+      }
+    }
+
+    html += '</div>';
+  });
+
+  body.innerHTML = html;
+
+  // ===== 工賃内訳テーブル =====
+  window._fixedTotal = total;
+  window._areaRows = areaRows;
+  window._fixedRows = fixedRows;
+  renderWageTable();
+}
+
+function renderWageTable() {
+  var wage = document.getElementById('confirm-wage');
+  var fixedRows = window._fixedRows || [];
+  var areaRows = window._areaRows || [];
+  var fixedTotal = window._fixedTotal || 0;
+
+  var html = '';
+
+  // 固定額の内訳
+  html += '<div style="font-weight:700;font-size:12px;color:#5A6E8A;margin-bottom:6px">■ 定額工賃</div>';
+  html += '<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:14px">';
+  fixedRows.forEach(function(r){
+    html += '<tr style="border-bottom:1px solid #EEF1F5">';
+    html += '<td style="padding:6px 4px">' + r.label + '</td>';
+    html += '<td style="padding:6px 4px;text-align:right;white-space:nowrap;font-weight:500">' + (r.amount===null?'別途':fmt(r.amount)) + '</td>';
+    html += '</tr>';
+  });
+  html += '</table>';
+
+  // 面積工事（入力欄つき）
+  var areaTotal = 0;
+  if (areaRows.length > 0) {
+    html += '<div style="font-weight:700;font-size:12px;color:#5A6E8A;margin-bottom:6px">■ 面積・数量で計算する工事</div>';
+    html += '<div style="font-size:11px;color:#8A9AB0;margin-bottom:8px">入力された寸法から面積を自動計算し初期値を表示しています。実測値があれば修正してください（計算式：単価 × 数量）<br>※壁クロス＝(幅+奥行)×2×天井高 − 開口部控除　／　天井・床＝幅×奥行</div>';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:14px">';
+    areaRows.forEach(function(r){
+      var qty = parseFloat(areaInputs[r.key]) || 0;
+      var amount = qty * r.price;
+      areaTotal += amount;
+      html += '<tr style="border-bottom:1px solid #EEF1F5">';
+      var autoNote = (r.auto && r.auto > 0) ? '<br><span style="font-size:11px;color:#2D6A4F">寸法から自動計算：約' + r.auto + r.unit + '（修正可）</span>' : '';
+      html += '<td style="padding:8px 4px">' + r.label + '<br><span style="font-size:11px;color:#8A9AB0">' + r.note + '</span>' + autoNote;
+      // 壁クロスの場合は開口部控除の入力欄を表示
+      if (r.deductKey) {
+        var dv = (areaInputs[r.deductKey]!==undefined) ? areaInputs[r.deductKey] : 1.6;
+        html += '<br><span style="font-size:11px;color:#5A6E8A">開口部控除：<input type="number" min="0" step="0.1" value="'+dv+'" oninput="updateDeduct(\''+r.deductKey+'\',this.value)" style="width:54px;padding:3px 5px;border:1.5px solid #D8DEE8;border-radius:5px;text-align:right;font-size:12px"> ㎡（ドア1枚≒1.6㎡）</span>';
+      }
+      html += '</td>';
+      html += '<td style="padding:8px 4px;white-space:nowrap;text-align:right">';
+      html += '<input type="number" min="0" step="0.1" value="' + (areaInputs[r.key]!==undefined?areaInputs[r.key]:'') + '" oninput="updateArea(\''+r.key+'\',this.value)" placeholder="0" style="width:64px;padding:5px 6px;border:1.5px solid #D8DEE8;border-radius:6px;text-align:right;font-size:13px"> ' + r.unit;
+      html += '</td>';
+      html += '<td style="padding:8px 4px;text-align:right;white-space:nowrap;font-weight:500;min-width:80px">' + fmt(amount) + '</td>';
+      html += '</tr>';
+    });
+    html += '</table>';
+  }
+
+  // 合計（加盟店へ支払う工賃）
+  var grandTotal = fixedTotal + areaTotal;
+  html += '<div style="margin-top:12px;padding:14px;background:#0A1F44;color:#fff;border-radius:8px">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
+  html += '<span style="font-weight:700">加盟店へ支払う工賃 合計（税抜）</span>';
+  html += '<span style="font-size:20px;font-weight:700">' + fmt(grandTotal) + '</span>';
+  html += '</div>';
+  html += '<div style="font-size:11px;color:#B0C4DE">定額 ' + fmt(fixedTotal) + ' ＋ 面積・数量分 ' + fmt(areaTotal) + '</div>';
+  html += '</div>';
+  html += '<p style="font-size:11px;color:#8A9AB0;margin-top:6px">※「別途」項目（給湯器本体など）は種類確定後に加算されます。すべて税抜表示です。</p>';
+
+  wage.innerHTML = html;
+}
+
+function updateArea(key, val) {
+  areaInputs[key] = val;
+  renderWageTable();
+}
+
+function updateDeduct(deductKey, val) {
+  areaInputs[deductKey] = val;
+  // 該当する壁クロス行の面積を再計算
+  var areaRows = window._areaRows || [];
+  areaRows.forEach(function(r){
+    if (r.deductKey === deductKey && r.dims) {
+      var newArea = calcArea('壁クロス', r.dims.w, r.dims.d, r.dims.h, val);
+      areaInputs[r.key] = newArea;
+      r.auto = newArea;
+    }
+  });
+  renderWageTable();
+}
+
+function getChecked(name) {
+  return Array.from(document.querySelectorAll('input[name="'+name+'"]:checked')).map(function(e){return e.value;}).join('、');
+}
+function getWorkLabel(type) {
+  return {toilet:'トイレ交換',boiler:'給湯器交換',cloth:'内装・クロス'}[type] || type;
+}
+
+// 複数工事管理
+var allWorkItems = [];
+var currentWorkIndex = 0;
+
+function toggleAddMore(yes) {
+  if (yes) {
+    // 現在の工事を保存して工事選択に戻る
+    saveCurrentWork();
+    // STEPバー非表示にせず工事選択ページへ
+    goTo(1);
+    // 工事内容選択だけリセット
+    selectedWork = '';
+    document.querySelectorAll('.work-type-card').forEach(function(c){c.classList.remove('selected');});
+    document.querySelectorAll('input[name="work-type"]').forEach(function(r){r.checked=false;});
+    document.getElementById('e-work-type').style.display='none';
+    // ラジオをリセット
+    document.querySelector('input[name="add-more"][value="yes"]').checked=false;
+    document.querySelector('input[name="add-more"][value="no"]').checked=false;
+    document.querySelectorAll('#rg-add-more .choice-label').forEach(function(l){l.classList.remove('selected');});
+  }
+}
+
+function saveCurrentWork() {
+  allWorkItems.push({ type: selectedWork });
+}
+
+function doSubmit() {
+  clearAllErrors();
+  var ok=true;
+
+  // 各台の写真を個別にチェック
+  if (selectedWork === 'toilet') {
+    var tnums=[1];
+    if(document.getElementById('toilet-unit-2').classList.contains('open')) tnums.push(2);
+    if(document.getElementById('toilet-unit-3').classList.contains('open')) tnums.push(3);
+    tnums.forEach(function(n){
+      var key='toilet-'+n;
+      var cnt=(photos[key]||[]).length;
+      if(cnt<2){
+        var label='トイレ'+n+'台目の写真（最低2枚以上アップロードしてください）';
+        var errId='e-photo-toilet-'+n;
+        var msg=document.getElementById(errId); if(msg) msg.style.display='block';
+        errorItems.push({label:label,errMsgId:errId}); ok=false;
+      }
+    });
+  }
+  if (selectedWork === 'boiler') {
+    var bnums=[1];
+    if(document.getElementById('boiler-unit-2').classList.contains('open')) bnums.push(2);
+    bnums.forEach(function(n){
+      var key='boiler-'+n;
+      var cnt=(photos[key]||[]).length;
+      if(cnt<2){
+        var label='給湯器'+n+'台目の写真（最低2枚以上アップロードしてください）';
+        var errId='e-photo-boiler-'+n;
+        var msg=document.getElementById(errId); if(msg) msg.style.display='block';
+        errorItems.push({label:label,errMsgId:errId}); ok=false;
+      }
+    });
+  }
+  if (selectedWork === 'cloth') {
+    var cnt=(photos['cloth']||[]).length;
+    if(cnt<2){
+      var msg=document.getElementById('e-photo'); if(msg) msg.style.display='block';
+      errorItems.push({label:'写真（最低2枚以上アップロードしてください）',errMsgId:'e-photo'}); ok=false;
+    }
+  }
+
+  if(!ok){ showErrorBanner(); return; }
+  // 現在の工事を保存
+  if (allWorkItems.length === 0 || allWorkItems[allWorkItems.length-1].type !== selectedWork) {
+    allWorkItems.push({ type: selectedWork });
+  }
+  buildConfirmPage();
+  goTo(4);
+}
+
+/* ===== 最終送信 ===== */
+function finalSubmit() {
+  var comment = (document.getElementById('wage-comment')||{value:''}).value.trim();
+  var hasWageComment = comment.length > 0;
+
+  // 工賃異議メッセージ
+  var thanks = document.getElementById('thanks-wage-msg');
+  if (thanks) thanks.style.display = hasWageComment ? 'block' : 'none';
+
+  // 合計工賃をサンクスページに表示
+  var fixedTotal = window._fixedTotal || 0;
+  var areaRows = window._areaRows || [];
+  var areaTotal = 0;
+  areaRows.forEach(function(r){ areaTotal += (parseFloat(areaInputs[r.key])||0) * r.price; });
+  var grandTotal = fixedTotal + areaTotal;
+
+  var totalEl = document.getElementById('thanks-total-amount');
+  if (totalEl) totalEl.textContent = fmt(grandTotal);
+
+  // 工事内容リスト
+  var listEl = document.getElementById('thanks-work-list');
+  if (listEl) {
+    var lines = [];
+    allWorkItems.forEach(function(item, idx) {
+      lines.push('工事' + (idx+1) + '：' + getWorkLabel(item.type));
+    });
+    // 定額工賃の内訳
+    var fixedRows = window._fixedRows || [];
+    fixedRows.forEach(function(r){
+      if (r.amount !== null) lines.push(r.label + '　' + fmt(r.amount));
+      else lines.push(r.label);
+    });
+    // 面積工賃
+    areaRows.forEach(function(r){
+      var qty = parseFloat(areaInputs[r.key]) || 0;
+      if (qty > 0) lines.push(r.label + '（' + qty + r.unit + '）　' + fmt(qty * r.price));
+    });
+    listEl.innerHTML = lines.join('<br>');
+  }
+
+  allWorkItems = [];
+  goTo(5);
+}
+
+/* ===== リスタート ===== */
+function restartForm() {
+  clearAllErrors();
+  document.querySelectorAll('input[type=text],input[type=date],textarea').forEach(function(el){el.value='';});
+  document.querySelectorAll('input[type=radio],input[type=checkbox]').forEach(function(el){el.checked=false;});
+  document.querySelectorAll('.choice-label').forEach(function(el){el.classList.remove('selected');});
+  document.querySelectorAll('.work-type-card').forEach(function(el){el.classList.remove('selected');});
+  document.querySelectorAll('.expand-block').forEach(function(el){el.classList.remove('open');});
+  photos={};
+  ['toilet-1-wrap','toilet-2-wrap','toilet-3-wrap','boiler-1-wrap','boiler-2-wrap'].forEach(function(id){
+    var el=document.getElementById('photo-'+id); if(el){el.innerHTML='';el.style.display='none';}
+  });
+  selectedWork=''; allWorkItems=[]; goTo(1);
+}
+
+/* ===== ラジオ・チェックビジュアル ===== */
+document.addEventListener('change',function(e){
+  var inp=e.target;
+  if(inp.type==='radio'){ var g=inp.closest('.choice-group'); if(g){g.querySelectorAll('.choice-label').forEach(function(l){l.classList.remove('selected');}); var cl=inp.closest('.choice-label'); if(cl) cl.classList.add('selected');} }
+  if(inp.type==='checkbox'){ var l=inp.closest('.choice-label'); if(l) l.classList.toggle('selected',inp.checked); }
+});
+</script>
+</body>
+</html>
