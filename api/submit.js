@@ -1,3 +1,11 @@
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '50mb',
+    },
+  },
+};
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -7,23 +15,23 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const body = req.body;
     const {
       company, staff, owner, surveyDate,
       workItems, wageTotal, wageOk, wageComment,
       prospect, workHours, estimateFormat, notes,
       photos
-    } = body;
+    } = req.body;
 
     const slack_webhook = process.env.slack_webhook_url;
-    const CLOUD_NAME  = process.env.cloudinary_cloud_name;
-    const API_KEY     = process.env.cloudinary_api_key;
-    const API_SECRET  = process.env.cloudinary_api_secret;
+    const CLOUD_NAME   = process.env.cloudinary_cloud_name;
+    const API_KEY      = process.env.cloudinary_api_key;
+    const API_SECRET   = process.env.cloudinary_api_secret;
 
-    // ① Cloudinaryに写真をアップロード
+    // ① Cloudinaryに写真をアップロード → URLを取得
     const uploadedUrls = [];
     if (photos && photos.length > 0) {
-      for (const photoBase64 of photos) {
+      for (let i = 0; i < photos.length; i++) {
+        const photoBase64 = photos[i];
         if (!photoBase64) continue;
         try {
           const timestamp = Math.round(Date.now() / 1000);
@@ -36,7 +44,7 @@ export default async function handler(req, res) {
 
           const formData = new URLSearchParams();
           formData.append('file',      photoBase64);
-          formData.append('timestamp', timestamp);
+          formData.append('timestamp', String(timestamp));
           formData.append('api_key',   API_KEY);
           formData.append('signature', signature);
           formData.append('folder',    folder);
@@ -46,60 +54,62 @@ export default async function handler(req, res) {
             { method: 'POST', body: formData }
           );
           const uploadData = await uploadRes.json();
-          if (uploadData.secure_url) uploadedUrls.push(uploadData.secure_url);
+          if (uploadData.secure_url) {
+            uploadedUrls.push(uploadData.secure_url);
+          }
         } catch (e) {
           console.warn('Cloudinaryアップロードエラー:', e);
         }
       }
     }
 
-    // ② Slack通知テキストを組み立て
+    // ② 写真URLのテキストを作成
+    let photoText = '';
+    if (uploadedUrls.length > 0) {
+      photoText = `\n*📸 写真（${uploadedUrls.length}枚）*\n`;
+      uploadedUrls.forEach((url, i) => {
+        photoText += `写真${i + 1}：${url}\n`;
+      });
+    } else {
+      photoText = '\n写真：なし';
+    }
+
+    // ③ Slack通知テキストを組み立て
     const wageStr = wageTotal ? `¥${Number(wageTotal).toLocaleString('ja-JP')}` : '—';
     const lines = [
+      '<@U051ELU7ETV>',
       '━━━━━━━━━━━━━━━━━━━━━━',
       '📋 *【リノコ現地調査報告】*',
       '━━━━━━━━━━━━━━━━━━━━━━',
       '',
       '*■ 基本情報*',
       `会社名：${company || '—'}`,
-      `担当者：${staff   || '—'}`,
-      `お施主様：${owner  || '—'}`,
+      `担当者：${staff || '—'}`,
+      `お施主様：${owner || '—'}`,
       `調査日：${surveyDate || '—'}`,
       '',
       '*■ 商談情報*',
-      `見込み角度：${prospect   || '—'}`,
+      `見込み角度：${prospect || '—'}`,
       `想定施工時間：${workHours || '—'}`,
       estimateFormat ? `見積書の作成方法：${estimateFormat}` : null,
       '',
       '*■ 工事内容*',
       workItems || '—',
       '',
-      '*■ 工賃合計（税抜・目安）*',
-      `*${wageStr}*`,
+      `*■ 工賃合計（税抜・目安）：${wageStr}*`,
       '',
-      '*■ 工賃確認*',
-      `工賃OK：${wageOk === 'yes' ? '✅ はい' : '❌ いいえ'}`,
+      `*■ 工賃確認：${wageOk === 'yes' ? '✅ はい' : '❌ いいえ'}*`,
       wageComment ? `異議内容：${wageComment}` : null,
-      '',
-      notes ? `*■ 特記事項・備考*\n${notes}` : null,
-      `写真：${uploadedUrls.length > 0 ? `${uploadedUrls.length}枚` : 'なし'}`,
+      notes ? `\n*■ 特記事項・備考*\n${notes}` : null,
+      photoText,
       '━━━━━━━━━━━━━━━━━━━━━━',
     ].filter(l => l !== null).join('\n');
 
-    // attachmentsで写真をインライン表示
-    const attachments = uploadedUrls.map((url, i) => ({
-      fallback:  `写真 ${i + 1}`,
-      image_url: url,
-      title:     `写真 ${i + 1}`,
-    }));
-
+    // ④ Slackに送信（テキストのみ・URLをクリックで写真確認）
     await fetch(slack_webhook, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({
-        text:        lines,
-        attachments: attachments.length > 0 ? attachments : undefined,
-      }),
+      body:    JSON.stringify({ text: lines }),
     }).catch(e => console.warn('Slack通知エラー:', e));
 
     return res.status(200).json({ success: true });
