@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>【リノコ】現地調査報告フォーム</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
@@ -2257,7 +2258,193 @@ function finalSubmit() {
     listEl.innerHTML = lines.join('<br>');
   }
 
+  // Slack通知を送信
+  sendSlackNotification(grandTotal);
+
   goTo(5);
+}
+
+/* ===== Slack通知 ===== */
+function buildSlackText(grandTotal) {
+  var lines = [];
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('📋 *【リノコ現地調査報告】*');
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('');
+
+  // 基本情報
+  lines.push('*■ 基本情報*');
+  lines.push('会社名：' + (gv('company')||'—'));
+  lines.push('担当者：' + (gv('staff')||'—'));
+  lines.push('お施主様：' + (gv('owner')||'—'));
+  lines.push('調査日：' + (gv('survey-date')||'—'));
+  lines.push('');
+
+  // 商談情報
+  lines.push('*■ 商談情報*');
+  lines.push('見込み角度：' + (gr('prospect')||'—'));
+  lines.push('想定施工時間：' + (gr('work-hours')||'—'));
+  var ef = gv('estimate-format');
+  if (ef) lines.push('見積書の作成方法：' + ef);
+  lines.push('');
+
+  // 工事内容
+  var allItemsS = window._allWorkItems || [];
+  allItemsS.forEach(function(item, idx) {
+    lines.push('*■ 工事' + (idx+1) + '：' + getWorkLabel(item.type) + '*');
+
+    if (item.type === 'toilet') {
+      var tnums=[1];
+      if(document.getElementById('toilet-unit-2')&&document.getElementById('toilet-unit-2').classList.contains('open')) tnums.push(2);
+      if(document.getElementById('toilet-unit-3')&&document.getElementById('toilet-unit-3').classList.contains('open')) tnums.push(3);
+      tnums.forEach(function(i){
+        lines.push('【' + i + '台目】');
+        lines.push('　種類：' + (gr('toilet-type-'+i)||'—'));
+        lines.push('　排水芯：' + (gr('drain-type-'+i)||'—'));
+        lines.push('　寸法：幅' + (gv('t-width-'+i)||'—') + 'mm × 奥行' + (gv('t-depth-'+i)||'—') + 'mm × 天井高' + (gv('t-height-'+i)||'—') + 'mm');
+        lines.push('　メーカー：' + (getChecked('t-maker-'+i)||'—'));
+        lines.push('　価格帯：' + (gr('t-price-'+i)||'—'));
+        lines.push('　手洗い：' + (gr('t-sink-'+i)||'—'));
+        lines.push('　便座グレード：' + (gr('t-grade-'+i)||'—'));
+        lines.push('　便座機能：' + (gr('t-func-'+i)||'—'));
+        if (gv('t-item-'+i)) lines.push('　品番：' + gv('t-item-'+i));
+        var cross = gr('t-cross-'+i); if(cross&&cross!=='なし') lines.push('　クロス：' + cross);
+        var adds = getChecked('t-add-'+i); if(adds) lines.push('　追加工事：' + adds);
+        var tao = gv('t-add-other-'+i); if(tao) lines.push('　追加工事その他：' + tao);
+      });
+    }
+
+    if (item.type === 'boiler') {
+      var bnums=[1];
+      if(document.getElementById('boiler-unit-2')&&document.getElementById('boiler-unit-2').classList.contains('open')) bnums.push(2);
+      bnums.forEach(function(i){
+        lines.push('【' + i + '台目】');
+        if(gv('b-item-'+i)) lines.push('　既存品番：' + gv('b-item-'+i));
+        lines.push('　搬入経路：' + (gr('b-route-'+i)||'—'));
+        lines.push('　配管状況：' + (gr('b-pipe-'+i)||'—'));
+        lines.push('　追加工事：' + (getChecked('b-add-'+i)||'—'));
+        lines.push('　交換理由：' + (getChecked('b-reason-'+i)||'—'));
+        var bo = gv('b-reason-other-'+i); if(bo) lines.push('　交換理由その他：' + bo);
+        if(gv('b-wish-'+i)) lines.push('　希望品番：' + gv('b-wish-'+i));
+      });
+      if(gr('b-extra-1')==='ある'){
+        lines.push('　合計台数：' + (gv('b-total-units')||'—') + '台');
+        lines.push('　2台目以降：' + (gr('b-same-spec')||'—'));
+      }
+    }
+
+    if (item.type === 'cloth') {
+      var mode = gr('c-mode');
+      lines.push('入力方法：' + (mode==='free'?'自由記入':'選択式'));
+      if (mode==='detail') {
+        lines.push('　寸法：幅' + (gv('c-width')||'—') + 'mm × 奥行' + (gv('c-depth')||'—') + 'mm × 天井高' + (gv('c-ceiling')||'—') + 'mm');
+        var cr = getChecked('c-range-area'); if(cr) lines.push('　張替え範囲：' + cr);
+        var rp = gv('c-range-part'); if(rp) lines.push('　壁の一部（場所）：' + rp);
+        if(gv('c-item-no')) lines.push('　希望品番・色：' + gv('c-item-no'));
+        lines.push('　追加工事：' + (getChecked('c-add')||'—'));
+        var cao = gv('c-add-other'); if(cao) lines.push('　追加工事その他：' + cao);
+        lines.push('　家具移動：' + (gr('c-furniture')||'—'));
+        var fc = gv('c-furniture-cost'); if(fc) lines.push('　家具移動希望工賃：¥' + parseInt(fc).toLocaleString('ja-JP'));
+      } else {
+        lines.push('　内容：' + (gv('c-free-text')||'—'));
+      }
+    }
+    lines.push('');
+  });
+
+  // 工賃
+  lines.push('*■ 工賃合計（税抜・目安）*');
+  lines.push('*' + fmt(grandTotal) + '*');
+  var fixedRows = window._fixedRows || [];
+  var areaRowsS = window._areaRows || [];
+  fixedRows.forEach(function(r){ lines.push('　' + r.label + '：' + (r.amount===null?'別途':fmt(r.amount))); });
+  areaRowsS.forEach(function(r){
+    var qty=parseFloat(areaInputs[r.key])||0;
+    if(qty>0) lines.push('　' + r.label + '（' + qty + r.unit + '）：' + fmt(qty*r.price));
+  });
+  lines.push('');
+
+  // 工賃確認
+  lines.push('*■ 工賃確認*');
+  var wageOkVal = gr('wage-ok');
+  lines.push('工賃OK：' + (wageOkVal==='yes'?'✅ はい':'❌ いいえ'));
+  var wc = gv('wage-comment'); if(wc) lines.push('異議内容：' + wc);
+  lines.push('');
+
+  // 特記事項・備考
+  var notes = gv('notes'); if(notes){ lines.push('*■ 特記事項・備考*'); lines.push(notes); lines.push(''); }
+
+  // 見積書作成方法
+  var ef2 = gv('estimate-format'); if(ef2){ lines.push('*■ 見積書の作成方法*'); lines.push(ef2); lines.push(''); }
+
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━');
+  return lines.join('\n');
+}
+
+function sendSlackNotification(grandTotal) {
+  var WEBHOOK = 'https://hooks.slack.com/services/T3SC0PG5Q/B0B7TLM10HW/' + 'DkvxWOc0MkXrb6To5V8dEWE3';
+  var text = buildSlackText(grandTotal);
+
+  // テキスト通知
+  fetch(WEBHOOK, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({text: text})
+  }).catch(function(e){ console.error('Slack通知エラー:', e); });
+
+  // 写真をSlackに送信（File Upload API）
+  sendSlackPhotos();
+}
+
+function sendSlackPhotos() {
+  var WEBHOOK = 'https://hooks.slack.com/services/T3SC0PG5Q/B0B7TLM10HW/' + 'DkvxWOc0MkXrb6To5V8dEWE3';
+  var allPhotos = [];
+  Object.keys(photos).forEach(function(key){
+    (photos[key]||[]).forEach(function(dataUrl, i){
+      allPhotos.push({key:key, idx:i, dataUrl:dataUrl});
+    });
+  });
+  if (allPhotos.length === 0) return;
+
+  // 写真をまとめてSlackに投稿（base64→Blob→FormData）
+  var photoText = '写真（計' + allPhotos.length + '枚）' + allPhotos.map(function(p){ return p.key+'_'+(p.idx+1)+'枚目'; }).join(', ');
+
+  // Incoming WebhookはファイルアップロードAPIとは別
+  // ここではテキストで枚数を通知し、画像はZIPダウンロードで対応
+  fetch(WEBHOOK, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({text: photoText + ' ※写真はZIPファイルでダウンロード済みです'})
+  }).catch(function(e){ console.error('写真通知エラー:', e); });
+
+  // ZIPをダウンロード
+  downloadZip(allPhotos);
+}
+
+function downloadZip(allPhotos) {
+  // JSZipライブラリを使用してZIPを作成
+  if (typeof JSZip === 'undefined') { console.warn('JSZipが読み込まれていません'); return; }
+  var zip = new JSZip();
+  var owner = gv('owner') || '施主様';
+  var date = gv('survey-date') || '日付不明';
+  var folder = zip.folder('リノコ報告_' + owner + '_' + date);
+
+  // テキスト
+  folder.file('報告内容.txt', buildSlackText(0).replace(/\*/g,''));
+
+  // 写真
+  allPhotos.forEach(function(p){
+    var base64 = p.dataUrl.split(',')[1];
+    var ext = p.dataUrl.indexOf('png') > -1 ? 'png' : 'jpg';
+    folder.file(p.key + '_' + (p.idx+1) + '.' + ext, base64, {base64:true});
+  });
+
+  zip.generateAsync({type:'blob'}).then(function(content){
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(content);
+    a.download = 'リノコ報告_' + owner + '_' + date + '.zip';
+    a.click();
+  });
 }
 
 /* ===== 追加工事入力 ===== */
