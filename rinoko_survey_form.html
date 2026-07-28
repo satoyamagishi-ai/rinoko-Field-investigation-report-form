@@ -2331,6 +2331,66 @@ function buildSlackText(grandTotal) {
 }
 
 
+function compressPhoto(dataUrl, callback) {
+  var img = new Image();
+  img.onload = function() {
+    var maxSize = 800;
+    var w = img.width, h = img.height;
+    if (w > maxSize || h > maxSize) {
+      if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+      else { w = Math.round(w * maxSize / h); h = maxSize; }
+    }
+    var canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    callback(canvas.toDataURL('image/jpeg', 0.6));
+  };
+  img.src = dataUrl;
+}
+
+function compressAllPhotos(photoList, callback) {
+  if (photoList.length === 0) { callback([]); return; }
+  var results = new Array(photoList.length);
+  var done = 0;
+  photoList.forEach(function(dataUrl, i) {
+    compressPhoto(dataUrl, function(compressed) {
+      results[i] = compressed;
+      done++;
+      if (done === photoList.length) callback(results);
+    });
+  });
+}
+
+function downloadZip(allPhotos) {
+  if (typeof JSZip === 'undefined') { console.warn('JSZipが読み込まれていません'); return; }
+  var zip = new JSZip();
+  var owner = gv('owner') || '施主様';
+  var date = gv('survey-date') || '日付不明';
+  var folder = zip.folder('リノコ報告_' + owner + '_' + date);
+  var txt = '【リノコ現地調査報告】\n';
+  txt += '会社名：' + (gv('company')||'—') + '\n';
+  txt += '担当者：' + (gv('staff')||'—') + '\n';
+  txt += 'お施主様：' + (gv('owner')||'—') + '\n';
+  txt += '調査日：' + (gv('survey-date')||'—') + '\n';
+  txt += '見込み角度：' + (gr('prospect')||'—') + '\n';
+  txt += '想定施工時間：' + (gr('work-hours')||'—') + '\n';
+  txt += '特記事項：' + (gv('notes')||'—') + '\n';
+  folder.file('報告内容.txt', txt);
+  allPhotos.forEach(function(p) {
+    var base64 = p.dataUrl.split(',')[1];
+    var ext = p.dataUrl.indexOf('png') > -1 ? 'png' : 'jpg';
+    folder.file(p.key + '_' + (p.idx + 1) + '.' + ext, base64, {base64: true});
+  });
+  zip.generateAsync({type: 'blob'}).then(function(content) {
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(content);
+    a.download = 'リノコ報告_' + owner + '_' + date + '.zip';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
+}
+
 function sendSlackNotification(grandTotal) {
   var workItemsText = buildSlackText(grandTotal);
 
