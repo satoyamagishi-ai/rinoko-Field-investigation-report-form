@@ -2266,33 +2266,11 @@ function finalSubmit() {
 
 /* ===== Slack通知 ===== */
 function buildSlackText(grandTotal) {
+  // 工事内容のみを返す（基本情報・工賃はsubmit.js側で組み立てる）
   var lines = [];
-  lines.push('━━━━━━━━━━━━━━━━━━━━━━');
-  lines.push('📋 *【リノコ現地調査報告】*');
-  lines.push('━━━━━━━━━━━━━━━━━━━━━━');
-  lines.push('');
-
-  // 基本情報
-  lines.push('*■ 基本情報*');
-  lines.push('会社名：' + (gv('company')||'—'));
-  lines.push('担当者：' + (gv('staff')||'—'));
-  lines.push('お施主様：' + (gv('owner')||'—'));
-  lines.push('調査日：' + (gv('survey-date')||'—'));
-  lines.push('');
-
-  // 商談情報
-  lines.push('*■ 商談情報*');
-  lines.push('見込み角度：' + (gr('prospect')||'—'));
-  lines.push('想定施工時間：' + (gr('work-hours')||'—'));
-  var ef = gv('estimate-format');
-  if (ef) lines.push('見積書の作成方法：' + ef);
-  lines.push('');
-
-  // 工事内容
   var allItemsS = window._allWorkItems || [];
   allItemsS.forEach(function(item, idx) {
     lines.push('*■ 工事' + (idx+1) + '：' + getWorkLabel(item.type) + '*');
-
     if (item.type === 'toilet') {
       var tnums=[1];
       if(document.getElementById('toilet-unit-2')&&document.getElementById('toilet-unit-2').classList.contains('open')) tnums.push(2);
@@ -2307,13 +2285,12 @@ function buildSlackText(grandTotal) {
         lines.push('　手洗い：' + (gr('t-sink-'+i)||'—'));
         lines.push('　便座グレード：' + (gr('t-grade-'+i)||'—'));
         lines.push('　便座機能：' + (gr('t-func-'+i)||'—'));
-        if (gv('t-item-'+i)) lines.push('　品番：' + gv('t-item-'+i));
-        var cross = gr('t-cross-'+i); if(cross&&cross!=='なし') lines.push('　クロス：' + cross);
-        var adds = getChecked('t-add-'+i); if(adds) lines.push('　追加工事：' + adds);
-        var tao = gv('t-add-other-'+i); if(tao) lines.push('　追加工事その他：' + tao);
+        if(gv('t-item-'+i)) lines.push('　品番：' + gv('t-item-'+i));
+        var cross=gr('t-cross-'+i); if(cross&&cross!=='なし') lines.push('　クロス：' + cross);
+        var adds=getChecked('t-add-'+i); if(adds) lines.push('　追加工事：' + adds);
+        var tao=gv('t-add-other-'+i); if(tao) lines.push('　追加工事その他：' + tao);
       });
     }
-
     if (item.type === 'boiler') {
       var bnums=[1];
       if(document.getElementById('boiler-unit-2')&&document.getElementById('boiler-unit-2').classList.contains('open')) bnums.push(2);
@@ -2324,7 +2301,7 @@ function buildSlackText(grandTotal) {
         lines.push('　配管状況：' + (gr('b-pipe-'+i)||'—'));
         lines.push('　追加工事：' + (getChecked('b-add-'+i)||'—'));
         lines.push('　交換理由：' + (getChecked('b-reason-'+i)||'—'));
-        var bo = gv('b-reason-other-'+i); if(bo) lines.push('　交換理由その他：' + bo);
+        var bo=gv('b-reason-other-'+i); if(bo) lines.push('　その他：' + bo);
         if(gv('b-wish-'+i)) lines.push('　希望品番：' + gv('b-wish-'+i));
       });
       if(gr('b-extra-1')==='ある'){
@@ -2332,85 +2309,27 @@ function buildSlackText(grandTotal) {
         lines.push('　2台目以降：' + (gr('b-same-spec')||'—'));
       }
     }
-
     if (item.type === 'cloth') {
-      var mode = gr('c-mode');
+      var mode=gr('c-mode');
       lines.push('入力方法：' + (mode==='free'?'自由記入':'選択式'));
-      if (mode==='detail') {
+      if(mode==='detail'){
         lines.push('　寸法：幅' + (gv('c-width')||'—') + 'mm × 奥行' + (gv('c-depth')||'—') + 'mm × 天井高' + (gv('c-ceiling')||'—') + 'mm');
-        var cr = getChecked('c-range-area'); if(cr) lines.push('　張替え範囲：' + cr);
-        var rp = gv('c-range-part'); if(rp) lines.push('　壁の一部（場所）：' + rp);
+        var cr=getChecked('c-range-area'); if(cr) lines.push('　張替え範囲：' + cr);
+        var rp=gv('c-range-part'); if(rp) lines.push('　壁の一部：' + rp);
         if(gv('c-item-no')) lines.push('　希望品番・色：' + gv('c-item-no'));
         lines.push('　追加工事：' + (getChecked('c-add')||'—'));
-        var cao = gv('c-add-other'); if(cao) lines.push('　追加工事その他：' + cao);
+        var cao=gv('c-add-other'); if(cao) lines.push('　その他：' + cao);
         lines.push('　家具移動：' + (gr('c-furniture')||'—'));
-        var fc = gv('c-furniture-cost'); if(fc) lines.push('　家具移動希望工賃：¥' + parseInt(fc).toLocaleString('ja-JP'));
+        var fc=gv('c-furniture-cost'); if(fc) lines.push('　家具移動希望工賃：¥' + parseInt(fc).toLocaleString('ja-JP'));
       } else {
-        lines.push('　内容：' + (gv('c-free-text')||'—'));
+        lines.push('　' + (gv('c-free-text')||'—'));
       }
     }
     lines.push('');
   });
-
-  // 工賃
-  lines.push('*■ 工賃合計（税抜・目安）*');
-  lines.push('*' + fmt(grandTotal) + '*');
-  var fixedRows = window._fixedRows || [];
-  var areaRowsS = window._areaRows || [];
-  fixedRows.forEach(function(r){ lines.push('　' + r.label + '：' + (r.amount===null?'別途':fmt(r.amount))); });
-  areaRowsS.forEach(function(r){
-    var qty=parseFloat(areaInputs[r.key])||0;
-    if(qty>0) lines.push('　' + r.label + '（' + qty + r.unit + '）：' + fmt(qty*r.price));
-  });
-  lines.push('');
-
-  // 工賃確認
-  lines.push('*■ 工賃確認*');
-  var wageOkVal = gr('wage-ok');
-  lines.push('工賃OK：' + (wageOkVal==='yes'?'✅ はい':'❌ いいえ'));
-  var wc = gv('wage-comment'); if(wc) lines.push('異議内容：' + wc);
-  lines.push('');
-
-  // 特記事項・備考
-  var notes = gv('notes'); if(notes){ lines.push('*■ 特記事項・備考*'); lines.push(notes); lines.push(''); }
-
-  // 見積書作成方法
-  var ef2 = gv('estimate-format'); if(ef2){ lines.push('*■ 見積書の作成方法*'); lines.push(ef2); lines.push(''); }
-
-  lines.push('━━━━━━━━━━━━━━━━━━━━━━');
   return lines.join('\n');
 }
 
-// 写真を圧縮してbase64に変換（最大800px・品質60%）
-function compressPhoto(dataUrl, callback) {
-  var img = new Image();
-  img.onload = function() {
-    var maxSize = 800;
-    var w = img.width, h = img.height;
-    if (w > maxSize || h > maxSize) {
-      if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
-      else       { w = Math.round(w * maxSize / h); h = maxSize; }
-    }
-    var canvas = document.createElement('canvas');
-    canvas.width = w; canvas.height = h;
-    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-    callback(canvas.toDataURL('image/jpeg', 0.6));
-  };
-  img.src = dataUrl;
-}
-
-function compressAllPhotos(photoList, callback) {
-  if (photoList.length === 0) { callback([]); return; }
-  var results = new Array(photoList.length);
-  var done = 0;
-  photoList.forEach(function(dataUrl, i) {
-    compressPhoto(dataUrl, function(compressed) {
-      results[i] = compressed;
-      done++;
-      if (done === photoList.length) callback(results);
-    });
-  });
-}
 
 function sendSlackNotification(grandTotal) {
   var workItemsText = buildSlackText(grandTotal);
