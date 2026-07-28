@@ -2381,7 +2381,40 @@ function buildSlackText(grandTotal) {
   return lines.join('\n');
 }
 
+// 写真を圧縮してbase64に変換（最大800px・品質60%）
+function compressPhoto(dataUrl, callback) {
+  var img = new Image();
+  img.onload = function() {
+    var maxSize = 800;
+    var w = img.width, h = img.height;
+    if (w > maxSize || h > maxSize) {
+      if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+      else       { w = Math.round(w * maxSize / h); h = maxSize; }
+    }
+    var canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    callback(canvas.toDataURL('image/jpeg', 0.6));
+  };
+  img.src = dataUrl;
+}
+
+function compressAllPhotos(photoList, callback) {
+  if (photoList.length === 0) { callback([]); return; }
+  var results = new Array(photoList.length);
+  var done = 0;
+  photoList.forEach(function(dataUrl, i) {
+    compressPhoto(dataUrl, function(compressed) {
+      results[i] = compressed;
+      done++;
+      if (done === photoList.length) callback(results);
+    });
+  });
+}
+
 function sendSlackNotification(grandTotal) {
+  var workItemsText = buildSlackText(grandTotal);
+
   // 写真を全部集める
   var allPhotos = [];
   Object.keys(photos).forEach(function(key){
@@ -2390,48 +2423,48 @@ function sendSlackNotification(grandTotal) {
     });
   });
 
-  // 工事内容テキストを生成
-  var workItemsText = buildSlackText(grandTotal);
+  // 写真を圧縮してからAPIに送信
+  compressAllPhotos(allPhotos, function(compressedPhotos) {
+    var payload = {
+      company:        gv('company'),
+      staff:          gv('staff'),
+      owner:          gv('owner'),
+      surveyDate:     gv('survey-date'),
+      workItems:      workItemsText,
+      wageTotal:      grandTotal,
+      wageOk:         gr('wage-ok'),
+      wageComment:    gv('wage-comment'),
+      prospect:       gr('prospect'),
+      workHours:      gr('work-hours'),
+      estimateFormat: gv('estimate-format'),
+      notes:          gv('notes'),
+      photos:         compressedPhotos
+    };
 
-  // Vercel APIに送信
-  var payload = {
-    company:        gv('company'),
-    staff:          gv('staff'),
-    owner:          gv('owner'),
-    surveyDate:     gv('survey-date'),
-    workItems:      workItemsText,
-    wageTotal:      grandTotal,
-    wageOk:         gr('wage-ok'),
-    wageComment:    gv('wage-comment'),
-    prospect:       gr('prospect'),
-    workHours:      gr('work-hours'),
-    estimateFormat: gv('estimate-format'),
-    notes:          gv('notes'),
-    photos:         allPhotos
-  };
+    fetch('https://rinoko-field-investigation-report-f.vercel.app/api/submit', {
+      method:  'POST',
+      headers: {'Content-Type': 'application/json'},
+      body:    JSON.stringify(payload)
+    })
+    .then(function(res){ return res.json(); })
+    .then(function(data){
+      if (data.success) console.log('Slack通知・写真送信完了');
+    })
+    .catch(function(e){ console.error('送信エラー:', e); });
 
-  fetch('https://rinoko-field-investigation-report-f.vercel.app/api/submit', {
-    method:  'POST',
-    headers: {'Content-Type': 'application/json'},
-    body:    JSON.stringify(payload)
-  })
-  .then(function(res){ return res.json(); })
-  .then(function(data){
-    if (data.success) {
-      console.log('Slack通知・写真送信完了');
-    }
-  })
-  .catch(function(e){ console.error('送信エラー:', e); });
-
-  // ZIPダウンロード（加盟店の手元記録用）
-  var allPhotosZip = [];
-  Object.keys(photos).forEach(function(key){
-    (photos[key]||[]).forEach(function(dataUrl, i){
-      allPhotosZip.push({key:key, idx:i, dataUrl:dataUrl});
+    // ZIPダウンロード（加盟店の手元記録用）
+    var allPhotosZip = [];
+    Object.keys(photos).forEach(function(key){
+      (photos[key]||[]).forEach(function(dataUrl, i){
+        allPhotosZip.push({key:key, idx:i, dataUrl:dataUrl});
+      });
     });
+    if (allPhotosZip.length > 0 && typeof JSZip !== 'undefined') {
+      downloadZip(allPhotosZip);
+    }
   });
-  if (allPhotosZip.length > 0) downloadZip(allPhotosZip);
 }
+
 
 /* ===== 追加工事入力 =====/* ===== 追加工事入力 ===== */
 function addMoreWork() {
