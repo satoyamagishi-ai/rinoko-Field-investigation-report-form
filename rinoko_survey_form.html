@@ -76,6 +76,8 @@ input[type="text"], input[type="date"], select, textarea {
 input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
   outline: none; border-color: #0A1F44; background: #fff; box-shadow: 0 0 0 3px rgba(10,31,68,.08);
 }
+input[type="text"]:focus + .err-msg, input[type="date"]:focus + .err-msg,
+select:focus + .err-msg, textarea:focus + .err-msg { display: none !important; }
 select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%235A6E8A' d='M6 8L0 0h12z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 13px center; padding-right: 36px; cursor: pointer; }
 textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
 input.err, select.err, textarea.err { border-color: #DC3545; background: #FFF8F8; }
@@ -425,19 +427,33 @@ input.err, select.err, textarea.err { border-color: #DC3545; background: #FFF8F8
 
       <div class="field">
         <label class="field-label">追加工事<span class="req">*</span></label>
-        <div class="choice-group" id="cg-t-add-1">
-          <label class="choice-label"><input type="checkbox" name="t-add-1" value="クロス貼替（天井あり）">クロス貼替（天井あり）</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-1" value="クロス貼替（天井なし）">クロス貼替（天井なし）</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-1" value="電気工事">電気工事</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-1" value="換気扇交換">換気扇交換</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-1" value="CF交換">CF交換</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-1" value="フローリング貼替">フローリング貼替</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-1" value="ソフト巾木交換">ソフト巾木交換</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-1" value="給水き機交換">給水き機交換</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-1" value="特になし">特になし</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-1" value="その他">その他</label>
+        <!-- クロス：1択（ラジオ） -->
+    <div style="margin-bottom:8px">
+      <div style="font-size:11px;color:#5A6E8A;margin-bottom:5px;font-weight:500">クロス貼替（どちらか1つ選択・なしの場合は「なし」を選択）</div>
+      <div class="choice-group" id="rg-t-cross-1">
+        <label class="choice-label"><input type="radio" name="t-cross-1" value="クロス貼替（天井あり）">クロス貼替（天井あり）</label>
+        <label class="choice-label"><input type="radio" name="t-cross-1" value="クロス貼替（天井なし）">クロス貼替（天井なし）</label>
+        <label class="choice-label"><input type="radio" name="t-cross-1" value="なし">なし</label>
+      </div>
+    </div>
+    <!-- その他追加工事：複数選択可 -->
+    <div style="font-size:11px;color:#5A6E8A;margin-bottom:5px;font-weight:500">その他追加工事（複数選択可）</div>
+    <div class="choice-group" id="cg-t-add-1">
+      <label class="choice-label"><input type="checkbox" name="t-add-1" value="電気工事">電気工事</label>
+      <label class="choice-label"><input type="checkbox" name="t-add-1" value="換気扇交換">換気扇交換</label>
+      <label class="choice-label"><input type="checkbox" name="t-add-1" value="CF交換">CF交換</label>
+      <label class="choice-label"><input type="checkbox" name="t-add-1" value="フローリング貼替">フローリング貼替</label>
+      <label class="choice-label"><input type="checkbox" name="t-add-1" value="ソフト巾木交換">ソフト巾木交換</label>
+      <label class="choice-label"><input type="checkbox" name="t-add-1" value="給水き機交換">給水き機交換</label>
+      <label class="choice-label"><input type="checkbox" name="t-add-1" value="特になし">特になし</label>
+      <label class="choice-label"><input type="checkbox" name="t-add-1" value="その他" onchange="toggleTAddOther(this,'1')">その他</label>
+    </div>
+        <div class="err-msg" id="e-t-cross-1">選択してください</div>
+      <div class="err-msg" id="e-t-add-1">1つ以上選択してください</div>
+        <div id="t-add-other-wrap-1" style="display:none;margin-top:10px">
+          <input type="text" id="t-add-other-1" placeholder="その他の追加工事内容を記入してください">
+          <div class="err-msg" id="e-t-add-other-1">内容を入力してください</div>
         </div>
-        <div class="err-msg" id="e-t-add-1">1つ以上選択してください</div>
       </div>
 
       <div class="field">
@@ -554,19 +570,33 @@ input.err, select.err, textarea.err { border-color: #DC3545; background: #FFF8F8
       </div>
       <div class="field">
         <label class="field-label">追加工事<span class="req">*</span></label>
-        <div class="choice-group" id="cg-t-add-2">
-          <label class="choice-label"><input type="checkbox" name="t-add-2" value="クロス貼替（天井あり）">クロス貼替（天井あり）</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-2" value="クロス貼替（天井なし）">クロス貼替（天井なし）</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-2" value="電気工事">電気工事</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-2" value="換気扇交換">換気扇交換</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-2" value="CF交換">CF交換</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-2" value="フローリング貼替">フローリング貼替</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-2" value="ソフト巾木交換">ソフト巾木交換</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-2" value="給水き機交換">給水き機交換</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-2" value="特になし">特になし</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-2" value="その他">その他</label>
+        <!-- クロス：1択（ラジオ） -->
+    <div style="margin-bottom:8px">
+      <div style="font-size:11px;color:#5A6E8A;margin-bottom:5px;font-weight:500">クロス貼替（どちらか1つ選択・なしの場合は「なし」を選択）</div>
+      <div class="choice-group" id="rg-t-cross-2">
+        <label class="choice-label"><input type="radio" name="t-cross-2" value="クロス貼替（天井あり）">クロス貼替（天井あり）</label>
+        <label class="choice-label"><input type="radio" name="t-cross-2" value="クロス貼替（天井なし）">クロス貼替（天井なし）</label>
+        <label class="choice-label"><input type="radio" name="t-cross-2" value="なし">なし</label>
+      </div>
+    </div>
+    <!-- その他追加工事：複数選択可 -->
+    <div style="font-size:11px;color:#5A6E8A;margin-bottom:5px;font-weight:500">その他追加工事（複数選択可）</div>
+    <div class="choice-group" id="cg-t-add-2">
+      <label class="choice-label"><input type="checkbox" name="t-add-2" value="電気工事">電気工事</label>
+      <label class="choice-label"><input type="checkbox" name="t-add-2" value="換気扇交換">換気扇交換</label>
+      <label class="choice-label"><input type="checkbox" name="t-add-2" value="CF交換">CF交換</label>
+      <label class="choice-label"><input type="checkbox" name="t-add-2" value="フローリング貼替">フローリング貼替</label>
+      <label class="choice-label"><input type="checkbox" name="t-add-2" value="ソフト巾木交換">ソフト巾木交換</label>
+      <label class="choice-label"><input type="checkbox" name="t-add-2" value="給水き機交換">給水き機交換</label>
+      <label class="choice-label"><input type="checkbox" name="t-add-2" value="特になし">特になし</label>
+      <label class="choice-label"><input type="checkbox" name="t-add-2" value="その他" onchange="toggleTAddOther(this,'2')">その他</label>
+    </div>
+        <div class="err-msg" id="e-t-cross-2">選択してください</div>
+      <div class="err-msg" id="e-t-add-2">1つ以上選択してください</div>
+        <div id="t-add-other-wrap-2" style="display:none;margin-top:10px">
+          <input type="text" id="t-add-other-2" placeholder="その他の追加工事内容を記入してください">
+          <div class="err-msg" id="e-t-add-other-2">内容を入力してください</div>
         </div>
-        <div class="err-msg" id="e-t-add-2">1つ以上選択してください</div>
       </div>
 
       <div class="field">
@@ -684,19 +714,33 @@ input.err, select.err, textarea.err { border-color: #DC3545; background: #FFF8F8
 
       <div class="field">
         <label class="field-label">追加工事<span class="req">*</span></label>
-        <div class="choice-group" id="cg-t-add-3">
-          <label class="choice-label"><input type="checkbox" name="t-add-3" value="クロス貼替（天井あり）">クロス貼替（天井あり）</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-3" value="クロス貼替（天井なし）">クロス貼替（天井なし）</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-3" value="電気工事">電気工事</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-3" value="換気扇交換">換気扇交換</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-3" value="CF交換">CF交換</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-3" value="フローリング貼替">フローリング貼替</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-3" value="ソフト巾木交換">ソフト巾木交換</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-3" value="給水き機交換">給水き機交換</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-3" value="特になし">特になし</label>
-          <label class="choice-label"><input type="checkbox" name="t-add-3" value="その他">その他</label>
+        <!-- クロス：1択（ラジオ） -->
+    <div style="margin-bottom:8px">
+      <div style="font-size:11px;color:#5A6E8A;margin-bottom:5px;font-weight:500">クロス貼替（どちらか1つ選択・なしの場合は「なし」を選択）</div>
+      <div class="choice-group" id="rg-t-cross-3">
+        <label class="choice-label"><input type="radio" name="t-cross-3" value="クロス貼替（天井あり）">クロス貼替（天井あり）</label>
+        <label class="choice-label"><input type="radio" name="t-cross-3" value="クロス貼替（天井なし）">クロス貼替（天井なし）</label>
+        <label class="choice-label"><input type="radio" name="t-cross-3" value="なし">なし</label>
+      </div>
+    </div>
+    <!-- その他追加工事：複数選択可 -->
+    <div style="font-size:11px;color:#5A6E8A;margin-bottom:5px;font-weight:500">その他追加工事（複数選択可）</div>
+    <div class="choice-group" id="cg-t-add-3">
+      <label class="choice-label"><input type="checkbox" name="t-add-3" value="電気工事">電気工事</label>
+      <label class="choice-label"><input type="checkbox" name="t-add-3" value="換気扇交換">換気扇交換</label>
+      <label class="choice-label"><input type="checkbox" name="t-add-3" value="CF交換">CF交換</label>
+      <label class="choice-label"><input type="checkbox" name="t-add-3" value="フローリング貼替">フローリング貼替</label>
+      <label class="choice-label"><input type="checkbox" name="t-add-3" value="ソフト巾木交換">ソフト巾木交換</label>
+      <label class="choice-label"><input type="checkbox" name="t-add-3" value="給水き機交換">給水き機交換</label>
+      <label class="choice-label"><input type="checkbox" name="t-add-3" value="特になし">特になし</label>
+      <label class="choice-label"><input type="checkbox" name="t-add-3" value="その他" onchange="toggleTAddOther(this,'3')">その他</label>
+    </div>
+        <div class="err-msg" id="e-t-cross-3">選択してください</div>
+      <div class="err-msg" id="e-t-add-3">1つ以上選択してください</div>
+        <div id="t-add-other-wrap-3" style="display:none;margin-top:10px">
+          <input type="text" id="t-add-other-3" placeholder="その他の追加工事内容を記入してください">
+          <div class="err-msg" id="e-t-add-other-3">内容を入力してください</div>
         </div>
-        <div class="err-msg" id="e-t-add-3">1つ以上選択してください</div>
       </div>
     </div>
   </div>
@@ -1113,10 +1157,45 @@ input.err, select.err, textarea.err { border-color: #DC3545; background: #FFF8F8
   <div class="err-msg" id="e-photo" style="margin-bottom:12px;font-size:13px">写真を2枚以上アップロードしてください</div>
 
   <div class="card">
+    <div class="sec-title"><div class="sec-title-icon">📊</div>商談情報</div>
+
+    <div class="field">
+      <label class="field-label">見込み角度<span class="req">*</span>
+        <span class="sub">施主様の温度感・成約の可能性を選択してください</span>
+      </label>
+      <div class="choice-group" id="rg-prospect">
+        <label class="choice-label"><input type="radio" name="prospect" value="A">A：成約が取れそう・前向きな反応あり</label>
+        <label class="choice-label"><input type="radio" name="prospect" value="B">B：検討中・競合と比較している</label>
+        <label class="choice-label"><input type="radio" name="prospect" value="C">C：温度感が低い・時間がかかりそう</label>
+      </div>
+      <div class="err-msg" id="e-prospect">選択してください</div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">想定される施工時間<span class="req">*</span></label>
+      <div class="choice-group" id="rg-work-hours">
+        <label class="choice-label"><input type="radio" name="work-hours" value="半日（〜4時間）">半日（〜4時間）</label>
+        <label class="choice-label"><input type="radio" name="work-hours" value="1日（4〜8時間）">1日（4〜8時間）</label>
+        <label class="choice-label"><input type="radio" name="work-hours" value="2日">2日</label>
+        <label class="choice-label"><input type="radio" name="work-hours" value="3日以上">3日以上</label>
+        <label class="choice-label"><input type="radio" name="work-hours" value="不明">不明</label>
+      </div>
+      <div class="err-msg" id="e-work-hours">選択してください</div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">見積書の作成方法<span class="opt">任意</span>
+        <span class="sub">特定のフォーマットや条件があればご記入ください</span>
+      </label>
+      <textarea id="estimate-format" placeholder="例）1階・2階で分けて出して欲しい&#10;例）TOTOとLIXILで同等品番の見積もりを2種類欲しい&#10;例）複数パターンが必要な場合は内容を記載してください" style="min-height:80px"></textarea>
+    </div>
+  </div>
+
+  <div class="card">
     <div class="sec-title"><div class="sec-title-icon">📝</div>特記事項・備考</div>
     <div class="field">
       <label class="field-label">特記事項・その他共有事項<span class="opt">任意</span>
-        <span class="sub">例）〇万円以内なら契約できそう、養生の範囲、搬入搬出の難しさ、マンションEV無し、駐車場無し、管理規約の制約など</span>
+        <span class="sub">例）養生の範囲、搬入搬出の難しさ、マンションEV無し、駐車場無し、管理規約の制約など</span>
       </label>
       <textarea id="notes" placeholder="特になければ空欄で構いません"></textarea>
     </div>
@@ -1153,29 +1232,27 @@ input.err, select.err, textarea.err { border-color: #DC3545; background: #FFF8F8
   </div>
 
   <div class="card">
-    <div class="sec-title"><div class="sec-title-icon">✏️</div>工賃への異議・コメント</div>
+    <div class="sec-title"><div class="sec-title-icon">✅</div>工賃の確認</div>
     <div class="field">
-      <label class="field-label">工賃についてご意見があればご記入ください<span class="opt">任意</span>
-        <span class="sub">「〇〇の工事は別途見積もり希望」など、ご要望があれば自由にご記入ください</span>
+      <label class="field-label">上記の工賃でよろしいですか？<span class="req">*</span>
+        <span class="sub">「いいえ」を選択した場合、気になる項目と希望金額をご記入ください</span>
       </label>
-      <textarea id="wage-comment" placeholder="例）給湯器2台目の搬入が特殊なため、別途協議希望" style="min-height:80px"></textarea>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="sec-title"><div class="sec-title-icon">🔄</div>他の工事内容を追加する</div>
-    <div class="field">
-      <label class="field-label">他にも報告する工事はありますか？</label>
-      <div class="choice-group" id="rg-add-more">
-        <label class="choice-label"><input type="radio" name="add-more" value="yes" onchange="toggleAddMore(true)">ある（追加で入力する）</label>
-        <label class="choice-label"><input type="radio" name="add-more" value="no" onchange="toggleAddMore(false)">ない（このまま送信）</label>
+      <div class="choice-group" id="rg-wage-ok">
+        <label class="choice-label"><input type="radio" name="wage-ok" value="yes" onchange="toggleWageComment(false)">はい（この工賃でOK）</label>
+        <label class="choice-label"><input type="radio" name="wage-ok" value="no" onchange="toggleWageComment(true)">いいえ（気になる点がある）</label>
+      </div>
+      <div class="err-msg" id="e-wage-ok">選択してください</div>
+      <div id="wage-comment-wrap" style="display:none;margin-top:12px">
+        <label class="field-label" style="font-size:13px;margin-bottom:6px">気になる項目と希望金額を記入してください<span class="req">*</span></label>
+        <textarea id="wage-comment" placeholder="例）CF交換の単価が高い → ¥2,000/㎡なら対応可&#10;例）給湯器の処分費は¥3,000でお願いしたい" style="min-height:100px"></textarea>
+        <div class="err-msg" id="e-wage-comment">内容を入力してください</div>
       </div>
     </div>
   </div>
 
-  <div class="nav-area">
+  <div class="nav-area" id="page4-nav" style="display:none">
     <button class="btn-prev" onclick="goTo(3)">← 戻る</button>
-    <button class="btn-submit" id="final-submit-btn" onclick="finalSubmit()">✓ 報告を送信する</button>
+    <button class="btn-next" id="final-submit-btn" onclick="finalSubmit()" style="background:#E85A2B;flex:1">🎉 これで完了！報告を送信する</button>
   </div>
 </div>
 
@@ -1201,7 +1278,17 @@ input.err, select.err, textarea.err { border-color: #DC3545; background: #FFF8F8
       ⚠️ 工賃についてはおって担当者よりご連絡いたします。
     </div>
 
-    <button onclick="restartForm()" style="margin-top:24px;width:100%;padding:13px;background:#E85A2B;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;font-family:'Noto Sans JP',sans-serif;cursor:pointer;">📋 続けて他の案件を報告する</button>
+    <div style="margin-top:24px;display:flex;flex-direction:column;gap:10px">
+      <button onclick="addMoreWork()" style="width:100%;padding:13px;background:#0A1F44;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;font-family:'Noto Sans JP',sans-serif;cursor:pointer;">＋ 他の工事内容を追加入力する</button>
+      <p style="font-size:11px;color:#8A9AB0;text-align:left;margin:2px 0 4px 2px">※ 同一施主様で他にも工事がある場合はこちらから追加入力してください</p>
+      <button onclick="restartForm()" style="width:100%;padding:13px;background:#E85A2B;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;font-family:'Noto Sans JP',sans-serif;cursor:pointer;">📋 別の案件を新規で報告する</button>
+      <p style="font-size:11px;color:#8A9AB0;text-align:left;margin:2px 0 0 2px">※ 別の施主様の案件を報告する場合はこちらから新規で入力してください</p>
+    </div>
+
+    <div style="margin-top:24px;padding:14px 16px;background:#F4F6FA;border-radius:8px;font-size:12px;color:#5A6E8A;line-height:1.8;text-align:left;">
+      ご連絡事項・ご意見がございましたら、下記メールアドレスまでお気軽にご連絡ください。<br>
+      📩 <a href="mailto:reshop-sales@zigexn.co.jp" style="color:#0A1F44;font-weight:700;text-decoration:underline;">reshop-sales@zigexn.co.jp</a>
+    </div>
   </div>
 </div>
 
@@ -1250,6 +1337,12 @@ function updateProgress() {
 }
 
 /* ===== 台数展開 ===== */
+function toggleTAddOther(checkbox, n) {
+  var wrap = document.getElementById('t-add-other-wrap-' + n);
+  if (!wrap) return;
+  wrap.style.display = checkbox.checked ? 'block' : 'none';
+  if (!checkbox.checked) { var inp = document.getElementById('t-add-other-' + n); if(inp) inp.value = ''; }
+}
 function toggleRangePart(checkbox, suffix) {
   var wrap = document.getElementById('c-range-part-wrap' + suffix);
   if (!wrap) return;
@@ -1261,6 +1354,14 @@ function toggleClothAddOther(checkbox, suffix) {
   if (!wrap) return;
   wrap.style.display = checkbox.checked ? 'block' : 'none';
   if (!checkbox.checked) { var inp = document.getElementById('c-add-other' + suffix); if(inp) inp.value = ''; }
+}
+function toggleWageComment(show) {
+  var wrap = document.getElementById('wage-comment-wrap');
+  if (wrap) wrap.style.display = show ? 'block' : 'none';
+  if (!show) { var el=document.getElementById('wage-comment'); if(el) el.value=''; }
+  // 送信ボタンを表示
+  var btn = document.getElementById('final-submit-btn');
+  var nav4=document.getElementById('page4-nav'); if(nav4) nav4.style.display='flex';
 }
 function toggleClothRoom2(open) {
   var el = document.getElementById('cloth-room-2');
@@ -1638,13 +1739,13 @@ var TOILET_ADD_PRICE = {
 // 面積・枚数で計算する工事の単価（税抜）
 // type: area=㎡単価, sheet=枚単価
 var AREA_WORK = {
-  '壁クロス':{type:'area',price:850,unit:'㎡',note:'量産クロス850円/㎡（壁4面−開口部控除）'},
-  'クロス貼替（天井あり）':{type:'area',price:850,unit:'㎡',note:'量産クロス850円/㎡（壁+天井）'},
-  'クロス貼替（天井なし）':{type:'area',price:850,unit:'㎡',note:'量産クロス850円/㎡（壁のみ）'},
-  '天井のクロス貼替':{type:'area',price:850,unit:'㎡',note:'量産クロス850円/㎡（天井）'},
-  'CF交換':{type:'area',price:2500,unit:'㎡',note:'クッションフロア2,500円/㎡'},
-  'フローリング貼替':{type:'area',price:8000,unit:'㎡',note:'フローリング8,000円/㎡'},
-  'ソフト巾木交換':{type:'sheet',price:500,unit:'枚',note:'ソフト巾木500円/枚'}
+  '壁クロス':{type:'area',price:1400,unit:'㎡',note:'量産クロス1,400円/㎡（壁4面−開口部控除）'},
+  'クロス貼替（天井あり）':{type:'area',price:1400,unit:'㎡',note:'量産クロス1,400円/㎡（壁+天井）'},
+  'クロス貼替（天井なし）':{type:'area',price:1400,unit:'㎡',note:'量産クロス1,400円/㎡（壁のみ）'},
+  '天井のクロス貼替':{type:'area',price:1400,unit:'㎡',note:'量産クロス1,400円/㎡（天井）'},
+  'CF交換':{type:'area',price:4000,unit:'㎡',note:'クッションフロア4,000円/㎡'},
+  'フローリング貼替':{type:'area',price:12000,unit:'㎡',note:'フローリング12,000円/㎡'},
+  'ソフト巾木交換':{type:'sheet',price:750,unit:'枚',note:'ソフト巾木750円/枚'}
 };
 
 // 面積入力値を保持
@@ -1729,10 +1830,22 @@ function buildConfirmPage() {
         html += '便座機能：' + (gr('t-func-'+i)||'—') + '<br>';
         if (gv('t-item-'+i)) html += '品番：' + gv('t-item-'+i) + '<br>';
         var adds = getChecked('t-add-'+i);
-        html += '追加工事：' + (adds||'—') + '<br>';
+        var cross=gr('t-cross-'+i); if(cross&&cross!=='なし') html += 'クロス貼替：' + cross + '<br>';
+        html += '追加工事：' + (adds||'—');
+        var tao=gv('t-add-other-'+i); if(tao) html += '（その他：'+tao+'）';
+        html += '<br>';
 
         fixedRows.push({label:'トイレ交換 '+i+'台目 基本工賃', amount:43000});
         total += 43000;
+        // クロスラジオの工賃計算
+        var crossVal = gr('t-cross-'+i);
+        if (crossVal && crossVal !== 'なし' && AREA_WORK[crossVal]) {
+          var ck = 'toilet'+i+'_'+crossVal;
+          var cAutoQ = calcArea(crossVal, gv('t-width-'+i), gv('t-depth-'+i), gv('t-height-'+i));
+          if (areaInputs[ck] === undefined && cAutoQ > 0) { areaInputs[ck] = cAutoQ; }
+          areaAutoCalc[ck] = cAutoQ;
+          areaRows.push({key:ck, label:crossVal+'（トイレ'+i+'台目）', price:AREA_WORK[crossVal].price, unit:AREA_WORK[crossVal].unit, note:AREA_WORK[crossVal].note, auto:cAutoQ});
+        }
         if (adds) {
           adds.split('、').forEach(function(a){
             if (TOILET_ADD_PRICE[a]) {
@@ -1857,6 +1970,7 @@ function buildConfirmPage() {
   window._fixedTotal = total;
   window._areaRows = areaRows;
   window._fixedRows = fixedRows;
+  window._allWorkItems = allWorkItems.slice();
   renderWageTable();
 }
 
@@ -1907,14 +2021,58 @@ function renderWageTable() {
     html += '</table>';
   }
 
+  // 処分費・諸経費を自動加算
+  var disposalRows = [];
+  var disposalTotal = 0;
+  var allItems = window._allWorkItems || [];
+  allItems.forEach(function(item) {
+    if (item.type === 'toilet') {
+      // 台数を取得
+      var tnums = 1;
+      if (document.getElementById('toilet-unit-2') && document.getElementById('toilet-unit-2').classList.contains('open')) tnums++;
+      if (document.getElementById('toilet-unit-3') && document.getElementById('toilet-unit-3').classList.contains('open')) tnums++;
+      var tDisposal = 8000 * tnums;
+      var tExp = 3000 * tnums;
+      var tLabel = tnums > 1 ? '（'+tnums+'台分）' : '';
+      disposalRows.push({label:'トイレ 処分費'+tLabel, amount:tDisposal});
+      disposalRows.push({label:'トイレ 諸経費'+tLabel, amount:tExp});
+      disposalTotal += tDisposal + tExp;
+    }
+    if (item.type === 'boiler') {
+      var bnums = 1;
+      if (document.getElementById('boiler-unit-2') && document.getElementById('boiler-unit-2').classList.contains('open')) bnums++;
+      var bLabel = bnums > 1 ? '（'+bnums+'台分）' : '';
+      disposalRows.push({label:'給湯器 処分費'+bLabel+'（エコキュート¥20,000/台、その他¥5,000/台）', amount:null});
+      disposalRows.push({label:'給湯器 諸経費'+bLabel+'（エコキュート¥5,000/台、その他¥3,000/台）', amount:null});
+    }
+    if (item.type === 'cloth') {
+      disposalRows.push({label:'クロス 処分費', amount:5000});
+      disposalRows.push({label:'クロス 諸経費', amount:3000});
+      disposalTotal += 8000;
+    }
+  });
+
   // 合計（加盟店へ支払う工賃）
-  var grandTotal = fixedTotal + areaTotal;
+  var grandTotal = fixedTotal + areaTotal + disposalTotal;
+  // 処分費・諸経費の表示
+  if (disposalRows.length > 0) {
+    html += '<div style="font-weight:700;font-size:12px;color:#5A6E8A;margin-bottom:6px">■ 処分費・諸経費</div>';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:14px">';
+    disposalRows.forEach(function(r){
+      html += '<tr style="border-bottom:1px solid #EEF1F5">';
+      html += '<td style="padding:6px 4px">' + r.label + '</td>';
+      html += '<td style="padding:6px 4px;text-align:right;white-space:nowrap;font-weight:500">' + (r.amount===null ? '別途' : fmt(r.amount)) + '</td>';
+      html += '</tr>';
+    });
+    html += '</table>';
+  }
+
   html += '<div style="margin-top:12px;padding:14px;background:#0A1F44;color:#fff;border-radius:8px">';
   html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
   html += '<span style="font-weight:700">加盟店へ支払う工賃 合計（税抜）</span>';
   html += '<span style="font-size:20px;font-weight:700">' + fmt(grandTotal) + '</span>';
   html += '</div>';
-  html += '<div style="font-size:11px;color:#B0C4DE">定額 ' + fmt(fixedTotal) + ' ＋ 面積・数量分 ' + fmt(areaTotal) + '</div>';
+  html += '<div style="font-size:11px;color:#B0C4DE">定額 ' + fmt(fixedTotal) + ' ＋ 面積・数量分 ' + fmt(areaTotal) + ' ＋ 処分費・諸経費 ' + fmt(disposalTotal) + '</div>';
   html += '</div>';
   html += '<p style="font-size:11px;color:#8A9AB0;margin-top:6px">※「別途」項目（給湯器本体など）は種類確定後に加算されます。すべて税抜表示です。</p>';
 
@@ -1951,22 +2109,18 @@ function getWorkLabel(type) {
 var allWorkItems = [];
 var currentWorkIndex = 0;
 
-function toggleAddMore(yes) {
-  if (yes) {
-    // 現在の工事を保存して工事選択に戻る
-    saveCurrentWork();
-    // STEPバー非表示にせず工事選択ページへ
-    goTo(1);
-    // 工事内容選択だけリセット
-    selectedWork = '';
-    document.querySelectorAll('.work-type-card').forEach(function(c){c.classList.remove('selected');});
-    document.querySelectorAll('input[name="work-type"]').forEach(function(r){r.checked=false;});
-    document.getElementById('e-work-type').style.display='none';
-    // ラジオをリセット
-    document.querySelector('input[name="add-more"][value="yes"]').checked=false;
-    document.querySelector('input[name="add-more"][value="no"]').checked=false;
-    document.querySelectorAll('#rg-add-more .choice-label').forEach(function(l){l.classList.remove('selected');});
-  }
+function doAddMore() {
+  // 現在の工事を保存してSTEP1に戻る
+  saveCurrentWork();
+  goTo(1);
+  selectedWork = '';
+  document.querySelectorAll('.work-type-card').forEach(function(c){c.classList.remove('selected');});
+  document.querySelectorAll('input[name="work-type"]').forEach(function(r){r.checked=false;});
+  var ewt=document.getElementById('e-work-type'); if(ewt) ewt.style.display='none';
+  // add-moreのラジオとボタンをリセット
+  document.querySelectorAll('input[name="add-more"]').forEach(function(r){r.checked=false;});
+  document.querySelectorAll('#rg-add-more .choice-label').forEach(function(l){l.classList.remove('selected');});
+  var conf=document.getElementById('add-more-confirm'); if(conf) conf.style.display='none';
 }
 
 function saveCurrentWork() {
@@ -1976,6 +2130,9 @@ function saveCurrentWork() {
 function doSubmit() {
   clearAllErrors();
   var ok=true;
+  // 見込み角度・施工時間の必須チェック
+  var ep=!gr('prospect'); setGroupError('rg-prospect','prospect','e-prospect',ep,ep?'見込み角度':null); if(ep) ok=false;
+  var eh=!gr('work-hours'); setGroupError('rg-work-hours','work-hours','e-work-hours',eh,eh?'想定される施工時間':null); if(eh) ok=false;
 
   // 各台の写真を個別にチェック
   if (selectedWork === 'toilet') {
@@ -2021,13 +2178,32 @@ function doSubmit() {
     allWorkItems.push({ type: selectedWork });
   }
   buildConfirmPage();
+  var nav4=document.getElementById('page4-nav'); if(nav4) nav4.style.display='none';
   goTo(4);
 }
 
 /* ===== 最終送信 ===== */
 function finalSubmit() {
-  var comment = (document.getElementById('wage-comment')||{value:''}).value.trim();
-  var hasWageComment = comment.length > 0;
+  // 工賃Yes/Noのバリデーション
+  var wageOk = gr('wage-ok');
+  if (!wageOk) {
+    var msg = document.getElementById('e-wage-ok');
+    if (msg) msg.style.display = 'block';
+    errorItems = [{label:'工賃の確認（はい/いいえを選択してください）', errMsgId:'e-wage-ok'}];
+    showErrorBanner();
+    return;
+  }
+  if (wageOk === 'no') {
+    var comment = (document.getElementById('wage-comment')||{value:''}).value.trim();
+    if (!comment) {
+      var cmsg = document.getElementById('e-wage-comment');
+      if (cmsg) cmsg.style.display = 'block';
+      errorItems = [{label:'工賃への意見（内容を入力してください）', errMsgId:'e-wage-comment'}];
+      showErrorBanner();
+      return;
+    }
+  }
+  var hasWageComment = (wageOk === 'no');
 
   // 工賃異議メッセージ
   var thanks = document.getElementById('thanks-wage-msg');
@@ -2038,7 +2214,19 @@ function finalSubmit() {
   var areaRows = window._areaRows || [];
   var areaTotal = 0;
   areaRows.forEach(function(r){ areaTotal += (parseFloat(areaInputs[r.key])||0) * r.price; });
-  var grandTotal = fixedTotal + areaTotal;
+  // 処分費・諸経費を再計算
+  var disposalTotalF = 0;
+  var allItemsF = window._allWorkItems || [];
+  allItemsF.forEach(function(item) {
+    if (item.type === 'toilet') {
+      var tnF=1;
+      if(document.getElementById('toilet-unit-2')&&document.getElementById('toilet-unit-2').classList.contains('open')) tnF++;
+      if(document.getElementById('toilet-unit-3')&&document.getElementById('toilet-unit-3').classList.contains('open')) tnF++;
+      disposalTotalF += 11000 * tnF;
+    }
+    if (item.type === 'cloth') disposalTotalF += 8000;
+  });
+  var grandTotal = fixedTotal + areaTotal + disposalTotalF;
 
   var totalEl = document.getElementById('thanks-total-amount');
   if (totalEl) totalEl.textContent = fmt(grandTotal);
@@ -2061,11 +2249,30 @@ function finalSubmit() {
       var qty = parseFloat(areaInputs[r.key]) || 0;
       if (qty > 0) lines.push(r.label + '（' + qty + r.unit + '）　' + fmt(qty * r.price));
     });
+    // 処分費・諸経費
+    allItemsF.forEach(function(item) {
+      if (item.type === 'toilet') { lines.push('トイレ 処分費　¥8,000'); lines.push('トイレ 諸経費　¥3,000'); }
+      if (item.type === 'cloth')  { lines.push('クロス 処分費　¥5,000'); lines.push('クロス 諸経費　¥3,000'); }
+    });
     listEl.innerHTML = lines.join('<br>');
   }
 
-  allWorkItems = [];
   goTo(5);
+}
+
+/* ===== 追加工事入力 ===== */
+function addMoreWork() {
+  // 工事内容の選択だけリセット、基本情報は維持
+  selectedWork = '';
+  document.querySelectorAll('.work-type-card').forEach(function(c){c.classList.remove('selected');});
+  var ewt=document.getElementById('e-work-type'); if(ewt) ewt.style.display='none';
+  // 写真もリセット
+  photos={};
+  ['toilet-1-wrap','toilet-2-wrap','toilet-3-wrap','boiler-1-wrap','boiler-2-wrap'].forEach(function(id){
+    var el=document.getElementById('photo-'+id); if(el){el.innerHTML='';el.style.display='none';}
+  });
+  clearAllErrors();
+  goTo(1);
 }
 
 /* ===== リスタート ===== */
@@ -2080,15 +2287,73 @@ function restartForm() {
   ['toilet-1-wrap','toilet-2-wrap','toilet-3-wrap','boiler-1-wrap','boiler-2-wrap'].forEach(function(id){
     var el=document.getElementById('photo-'+id); if(el){el.innerHTML='';el.style.display='none';}
   });
-  selectedWork=''; allWorkItems=[]; goTo(1);
+  selectedWork=''; allWorkItems=[]; areaInputs={}; goTo(1);
 }
+
+/* ===== テキスト入力のエラー自動解除 ===== */
+document.addEventListener('input', function(e) {
+  var inp = e.target;
+  if (inp.tagName === 'INPUT' || inp.tagName === 'TEXTAREA') {
+    if (inp.value.trim()) {
+      inp.style.border = ''; inp.style.background = '';
+      var field = inp.closest('.field');
+      if (field) {
+        field.style.background = ''; field.style.borderRadius = ''; field.style.padding = '';
+        field.style.marginLeft = ''; field.style.marginRight = '';
+        var lbl = field.querySelector('.field-label'); if (lbl) lbl.style.color = '';
+        var msg = inp.nextElementSibling;
+        if (msg && msg.classList.contains('err-msg')) msg.style.display = 'none';
+      }
+    }
+  }
+});
 
 /* ===== ラジオ・チェックビジュアル ===== */
 document.addEventListener('change',function(e){
   var inp=e.target;
-  if(inp.type==='radio'){ var g=inp.closest('.choice-group'); if(g){g.querySelectorAll('.choice-label').forEach(function(l){l.classList.remove('selected');}); var cl=inp.closest('.choice-label'); if(cl) cl.classList.add('selected');} }
-  if(inp.type==='checkbox'){ var l=inp.closest('.choice-label'); if(l) l.classList.toggle('selected',inp.checked); }
-});
+  if(inp.type==='radio'){
+    var g=inp.closest('.choice-group');
+    if(g){
+      g.querySelectorAll('.choice-label').forEach(function(l){
+        l.classList.remove('selected');
+        l.style.borderColor=''; l.style.background='';
+      });
+      var cl=inp.closest('.choice-label'); if(cl) cl.classList.add('selected');
+      // フィールドのエラーハイライトをリセット
+      var field=g.closest('.field');
+      if(field){
+        field.style.background=''; field.style.borderRadius=''; field.style.padding='';
+        field.style.marginLeft=''; field.style.marginRight='';
+        var lbl=field.querySelector('.field-label'); if(lbl) lbl.style.color='';
+        var msg=field.querySelector('.err-msg'); if(msg) msg.style.display='none';
+      }
+    }
+    if(inp.name==='add-more'){
+      var conf=document.getElementById('add-more-confirm');
+      if(conf) conf.style.display=(inp.value==='yes')?'block':'none';
+    }
+    if(inp.name==='wage-ok'){
+      var nav4=document.getElementById('page4-nav'); if(nav4) nav4.style.display='flex';
+    }
+  }
+  if(inp.type==='checkbox'){
+    var l=inp.closest('.choice-label'); if(l) l.classList.toggle('selected',inp.checked);
+    var g2=inp.closest('.choice-group');
+    if(g2){
+      var anyChecked=g2.querySelectorAll('input:checked').length>0;
+      if(anyChecked){
+        g2.querySelectorAll('.choice-label').forEach(function(l2){ l2.style.borderColor=''; l2.style.background=''; });
+        var field2=g2.closest('.field');
+        if(field2){
+          field2.style.background=''; field2.style.borderRadius=''; field2.style.padding='';
+          field2.style.marginLeft=''; field2.style.marginRight='';
+          var lbl2=field2.querySelector('.field-label'); if(lbl2) lbl2.style.color='';
+          var msg2=field2.querySelector('.err-msg'); if(msg2) msg2.style.display='none';
+        }
+      }
+    }
+  }
+});;
 </script>
 </body>
 </html>
