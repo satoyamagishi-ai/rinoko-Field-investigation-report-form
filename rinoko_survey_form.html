@@ -2382,72 +2382,58 @@ function buildSlackText(grandTotal) {
 }
 
 function sendSlackNotification(grandTotal) {
-  var WEBHOOK = 'https://hooks.slack.com/services/T3SC0PG5Q/B0B7TLM10HW/' + 'DkvxWOc0MkXrb6To5V8dEWE3';
-  var text = buildSlackText(grandTotal);
-
-  // テキスト通知
-  fetch(WEBHOOK, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({text: text})
-  }).catch(function(e){ console.error('Slack通知エラー:', e); });
-
-  // 写真をSlackに送信（File Upload API）
-  sendSlackPhotos();
-}
-
-function sendSlackPhotos() {
-  var WEBHOOK = 'https://hooks.slack.com/services/T3SC0PG5Q/B0B7TLM10HW/' + 'DkvxWOc0MkXrb6To5V8dEWE3';
+  // 写真を全部集める
   var allPhotos = [];
   Object.keys(photos).forEach(function(key){
-    (photos[key]||[]).forEach(function(dataUrl, i){
-      allPhotos.push({key:key, idx:i, dataUrl:dataUrl});
+    (photos[key]||[]).forEach(function(dataUrl){
+      allPhotos.push(dataUrl);
     });
   });
-  if (allPhotos.length === 0) return;
 
-  // 写真をまとめてSlackに投稿（base64→Blob→FormData）
-  var photoText = '写真（計' + allPhotos.length + '枚）' + allPhotos.map(function(p){ return p.key+'_'+(p.idx+1)+'枚目'; }).join(', ');
+  // 工事内容テキストを生成
+  var workItemsText = buildSlackText(grandTotal);
 
-  // Incoming WebhookはファイルアップロードAPIとは別
-  // ここではテキストで枚数を通知し、画像はZIPダウンロードで対応
-  fetch(WEBHOOK, {
-    method: 'POST',
+  // Vercel APIに送信
+  var payload = {
+    company:        gv('company'),
+    staff:          gv('staff'),
+    owner:          gv('owner'),
+    surveyDate:     gv('survey-date'),
+    workItems:      workItemsText,
+    wageTotal:      grandTotal,
+    wageOk:         gr('wage-ok'),
+    wageComment:    gv('wage-comment'),
+    prospect:       gr('prospect'),
+    workHours:      gr('work-hours'),
+    estimateFormat: gv('estimate-format'),
+    notes:          gv('notes'),
+    photos:         allPhotos
+  };
+
+  fetch('https://rinoko-field-investigation-report-f.vercel.app/api/submit', {
+    method:  'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({text: photoText + ' ※写真はZIPファイルでダウンロード済みです'})
-  }).catch(function(e){ console.error('写真通知エラー:', e); });
+    body:    JSON.stringify(payload)
+  })
+  .then(function(res){ return res.json(); })
+  .then(function(data){
+    if (data.success) {
+      console.log('Slack通知・写真送信完了');
+    }
+  })
+  .catch(function(e){ console.error('送信エラー:', e); });
 
-  // ZIPをダウンロード
-  downloadZip(allPhotos);
+  // ZIPダウンロード（加盟店の手元記録用）
+  var allPhotosZip = [];
+  Object.keys(photos).forEach(function(key){
+    (photos[key]||[]).forEach(function(dataUrl, i){
+      allPhotosZip.push({key:key, idx:i, dataUrl:dataUrl});
+    });
+  });
+  if (allPhotosZip.length > 0) downloadZip(allPhotosZip);
 }
 
-function downloadZip(allPhotos) {
-  // JSZipライブラリを使用してZIPを作成
-  if (typeof JSZip === 'undefined') { console.warn('JSZipが読み込まれていません'); return; }
-  var zip = new JSZip();
-  var owner = gv('owner') || '施主様';
-  var date = gv('survey-date') || '日付不明';
-  var folder = zip.folder('リノコ報告_' + owner + '_' + date);
-
-  // テキスト
-  folder.file('報告内容.txt', buildSlackText(0).replace(/\*/g,''));
-
-  // 写真
-  allPhotos.forEach(function(p){
-    var base64 = p.dataUrl.split(',')[1];
-    var ext = p.dataUrl.indexOf('png') > -1 ? 'png' : 'jpg';
-    folder.file(p.key + '_' + (p.idx+1) + '.' + ext, base64, {base64:true});
-  });
-
-  zip.generateAsync({type:'blob'}).then(function(content){
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(content);
-    a.download = 'リノコ報告_' + owner + '_' + date + '.zip';
-    a.click();
-  });
-}
-
-/* ===== 追加工事入力 ===== */
+/* ===== 追加工事入力 =====/* ===== 追加工事入力 ===== */
 function addMoreWork() {
   // 工事内容の選択だけリセット、基本情報は維持
   selectedWork = '';
