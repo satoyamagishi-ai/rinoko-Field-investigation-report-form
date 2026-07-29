@@ -1281,6 +1281,7 @@ input.err, select.err, textarea.err { border-color: #DC3545; background: #FFF8F8
   <div class="card success-card">
     <div class="success-icon">✅</div>
     <h2>報告を送信しました</h2>
+    <div id="debug-msg" style="margin-top:10px;padding:8px 12px;background:#FFF6F2;border:1px solid #F5C4AE;border-radius:6px;font-size:12px;color:#933A18;text-align:left;word-break:break-all;">送信処理中...</div>
     <p style="margin-top:12px">現地調査報告の送信が完了しました。<br>内容を確認次第、リノコ事務局よりご連絡いたします。</p>
 
     <!-- 工賃サマリー -->
@@ -2273,6 +2274,11 @@ function doSubmit() {
   if (allWorkItems.length === 0 || allWorkItems[allWorkItems.length-1].type !== selectedWork) {
     allWorkItems.push({ type: selectedWork });
   }
+  // 現在の工事をスナップショット保存（上書き方式：最後の保存を使う）
+  if (allWorkItems.length > 0 && allWorkItems[allWorkItems.length-1].type === selectedWork) {
+    allWorkItems.pop(); // 直前の同工事スナップショットを削除して最新で上書き
+  }
+  saveCurrentWork();
   buildConfirmPage();
   var nav4=document.getElementById('page4-nav'); if(nav4) nav4.style.display='none';
   goTo(4);
@@ -2353,7 +2359,7 @@ function finalSubmit() {
     listEl.innerHTML = lines.join('<br>');
   }
 
-  // サンクスページのサマリーを生成
+  // サンクスページのサマリーを生成（スナップショットから）
   var summaryEl = document.getElementById('thanks-summary-body');
   if (summaryEl) {
     var txt = '';
@@ -2361,15 +2367,10 @@ function finalSubmit() {
     txt += '担当者：' + (gv('staff')||'—') + '\n';
     txt += 'お施主様：' + (gv('owner')||'—') + '\n';
     txt += '調査日：' + (gv('survey-date')||'—') + '\n';
-    txt += '見込み角度：' + (gr('prospect')||'—') + '\n';
-    txt += '想定施工時間：' + (gr('work-hours')||'—') + '\n';
-    var ef = gv('estimate-format'); if(ef) txt += '見積書の作成方法：' + ef + '\n';
-    var cb = gv('client-budget'); if(cb) txt += '施主様の希望予算：' + cb + '\n';
-    var notes = gv('notes'); if(notes) txt += '特記事項：' + notes + '\n';
     txt += '\n--- 工事内容 ---\n';
-    var wt = buildSlackText(grandTotal);
+    var wt = buildSlackText(grandTotal).replace(/\*/g,'');
     txt += wt;
-    txt += '\n--- 工賃合計 ---\n';
+    txt += '--- 工賃合計 ---\n';
     txt += fmt(grandTotal) + '（税抜・目安）\n';
     txt += '工賃確認：' + (gr('wage-ok')==='yes'?'✅ はい':'❌ いいえ') + '\n';
     var wc = gv('wage-comment'); if(wc) txt += '異議内容：' + wc + '\n';
@@ -2385,7 +2386,7 @@ function finalSubmit() {
 /* ===== Slack通知 ===== */
 function buildSlackText(grandTotal) {
   var lines = [];
-  var allItemsS = window._allWorkItems || [];
+  var allItemsS = allWorkItems || window._allWorkItems || [];
   allItemsS.forEach(function(item, idx) {
     lines.push('*■ 工事' + (idx+1) + '：' + getWorkLabel(item.type) + '*');
     var d = item.data || {};
@@ -2531,15 +2532,29 @@ function sendSlackNotification(grandTotal) {
       notes:          gv('notes'),
       photos:         compressedPhotos
     };
+    function showDebug(msg) {
+      var el = document.getElementById('debug-msg');
+      if (el) el.textContent = msg;
+    }
+    showDebug('送信中...');
     var xhr = new XMLHttpRequest();
     xhr.open('POST', 'https://rinoko-field-investigation-report-f.vercel.app/api/submit', true);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.onload = function() {
-      if (xhr.status === 200) console.log('Slack通知完了');
-      else console.error('送信エラー:', xhr.status, xhr.responseText);
+      if (xhr.status === 200) {
+        showDebug('✅ Slack通知完了（' + xhr.status + '）');
+      } else {
+        showDebug('❌ 送信エラー: ' + xhr.status + ' / ' + xhr.responseText.substring(0,100));
+      }
     };
-    xhr.onerror = function() { console.error('ネットワークエラー'); };
-    xhr.send(JSON.stringify(payload));
+    xhr.onerror = function() { showDebug('❌ ネットワークエラー（XHR onerror）'); };
+    xhr.ontimeout = function() { showDebug('❌ タイムアウト'); };
+    xhr.timeout = 30000;
+    try {
+      xhr.send(JSON.stringify(payload));
+    } catch(e) {
+      showDebug('❌ 送信例外: ' + e.message);
+    }
   }
 
   if (allPhotos.length > 0) {
