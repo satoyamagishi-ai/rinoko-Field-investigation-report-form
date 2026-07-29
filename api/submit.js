@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     const {
       company, staff, owner, surveyDate,
       workItems, wageTotal, wageOk, wageComment,
-      prospect, workHours, estimateFormat, notes,
+      prospect, workHours, estimateFormat, clientBudget, notes,
       photos
     } = req.body;
 
@@ -27,20 +27,19 @@ export default async function handler(req, res) {
     const API_KEY      = process.env.cloudinary_api_key;
     const API_SECRET   = process.env.cloudinary_api_secret;
 
-    // ① Cloudinaryに写真をアップロード → URLを取得
+    // ① Cloudinaryに写真をアップロード
     const uploadedUrls = [];
-    if (photos && photos.length > 0) {
-      for (let i = 0; i < photos.length; i++) {
-        const photoBase64 = photos[i];
+    if (photos && photos.length > 0 && CLOUD_NAME && API_KEY && API_SECRET) {
+      for (const photoBase64 of photos) {
         if (!photoBase64) continue;
         try {
           const timestamp = Math.round(Date.now() / 1000);
           const folder    = 'rinoko_fieldreport';
-          const sigStr    = `folder=${folder}&timestamp=${timestamp}${API_SECRET}`;
-          const encoder   = new TextEncoder();
-          const hashBuffer = await crypto.subtle.digest('SHA-1', encoder.encode(sigStr));
-          const signature  = Array.from(new Uint8Array(hashBuffer))
-            .map(b => b.toString(16).padStart(2, '0')).join('');
+
+          // Node.js環境での署名生成（crypto モジュールを使用）
+          const crypto = await import('crypto');
+          const sigStr = `folder=${folder}&timestamp=${timestamp}${API_SECRET}`;
+          const signature = crypto.createHash('sha1').update(sigStr).digest('hex');
 
           const formData = new URLSearchParams();
           formData.append('file',      photoBase64);
@@ -56,9 +55,11 @@ export default async function handler(req, res) {
           const uploadData = await uploadRes.json();
           if (uploadData.secure_url) {
             uploadedUrls.push(uploadData.secure_url);
+          } else {
+            console.warn('Cloudinaryエラー:', JSON.stringify(uploadData));
           }
         } catch (e) {
-          console.warn('Cloudinaryアップロードエラー:', e);
+          console.warn('Cloudinaryアップロードエラー:', e.message);
         }
       }
     }
@@ -70,6 +71,8 @@ export default async function handler(req, res) {
       uploadedUrls.forEach((url, i) => {
         photoText += `写真${i + 1}：${url}\n`;
       });
+    } else if (photos && photos.length > 0) {
+      photoText = `\n写真：${photos.length}枚（アップロード処理中にエラーが発生しました）`;
     } else {
       photoText = '\n写真：なし';
     }
@@ -106,17 +109,19 @@ export default async function handler(req, res) {
       '━━━━━━━━━━━━━━━━━━━━━━',
     ].filter(l => l !== null).join('\n');
 
-    // ④ Slackに送信（テキストのみ・URLをクリックで写真確認）
-    await fetch(slack_webhook, {
+    // ④ Slackに送信
+    const slackRes = await fetch(slack_webhook, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ text: lines }),
-    }).catch(e => console.warn('Slack通知エラー:', e));
+    });
+
+    console.log('Slack response:', slackRes.status);
 
     return res.status(200).json({ success: true });
 
   } catch (error) {
-    console.error('submit error:', error);
-    return res.status(500).json({ error: 'サーバーエラーが発生しました' });
+    console.error('submit error:', error.message, error.stack);
+    return res.status(500).json({ error: 'サーバーエラーが発生しました', detail: error.message });
   }
 }
