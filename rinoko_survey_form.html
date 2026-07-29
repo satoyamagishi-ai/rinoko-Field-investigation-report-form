@@ -362,7 +362,6 @@ input.err, select.err, textarea.err { border-color: #DC3545; background: #FFF8F8
           <label class="choice-label"><input type="checkbox" name="t-maker-1" value="LIXIL">LIXIL</label>
           <label class="choice-label"><input type="checkbox" name="t-maker-1" value="Panasonic">Panasonic</label>
           <label class="choice-label"><input type="checkbox" name="t-maker-1" value="こだわりなし">こだわりなし</label>
-          <label class="choice-label"><input type="checkbox" name="t-maker-1" value="不明">不明</label>
         </div>
         <div class="err-msg" id="e-t-maker-1">1つ以上選択してください</div>
       </div>
@@ -524,7 +523,6 @@ input.err, select.err, textarea.err { border-color: #DC3545; background: #FFF8F8
           <label class="choice-label"><input type="checkbox" name="t-maker-2" value="LIXIL">LIXIL</label>
           <label class="choice-label"><input type="checkbox" name="t-maker-2" value="Panasonic">Panasonic</label>
           <label class="choice-label"><input type="checkbox" name="t-maker-2" value="こだわりなし">こだわりなし</label>
-          <label class="choice-label"><input type="checkbox" name="t-maker-2" value="不明">不明</label>
         </div>
         <div class="err-msg" id="e-t-maker-2">1つ以上選択してください</div>
       </div>
@@ -667,7 +665,6 @@ input.err, select.err, textarea.err { border-color: #DC3545; background: #FFF8F8
           <label class="choice-label"><input type="checkbox" name="t-maker-3" value="LIXIL">LIXIL</label>
           <label class="choice-label"><input type="checkbox" name="t-maker-3" value="Panasonic">Panasonic</label>
           <label class="choice-label"><input type="checkbox" name="t-maker-3" value="こだわりなし">こだわりなし</label>
-          <label class="choice-label"><input type="checkbox" name="t-maker-3" value="不明">不明</label>
         </div>
         <div class="err-msg" id="e-t-maker-3">1つ以上選択してください</div>
       </div>
@@ -771,19 +768,25 @@ input.err, select.err, textarea.err { border-color: #DC3545; background: #FFF8F8
           <label class="choice-label"><input type="radio" name="b-route-1" value="問題なし">問題なし</label>
           <label class="choice-label"><input type="radio" name="b-route-1" value="非常に狭い">非常に狭い</label>
           <label class="choice-label"><input type="radio" name="b-route-1" value="移動距離が長い">移動距離が長い</label>
-          <label class="choice-label"><input type="radio" name="b-route-1" value="その他">その他</label>
+          <label class="choice-label"><input type="radio" name="b-route-1" value="その他" onchange="toggleBoilerOther('b-route-other-1',true)">その他</label>
           <label class="choice-label"><input type="radio" name="b-route-1" value="不明">不明</label>
         </div>
         <div class="err-msg" id="e-b-route-1">選択してください</div>
+        <div id="b-route-other-1" style="display:none;margin-top:10px">
+          <input type="text" id="b-route-other-text-1" placeholder="搬入経路のその他の内容を記入してください">
+        </div>
       </div>
       <div class="field">
         <label class="field-label">配管設備の状況<span class="req">*</span></label>
         <div class="choice-group" id="rg-b-pipe-1">
           <label class="choice-label"><input type="radio" name="b-pipe-1" value="問題なし">問題なし</label>
-          <label class="choice-label"><input type="radio" name="b-pipe-1" value="その他">その他</label>
+          <label class="choice-label"><input type="radio" name="b-pipe-1" value="その他" onchange="toggleBoilerOther('b-pipe-other-1',true)">その他</label>
           <label class="choice-label"><input type="radio" name="b-pipe-1" value="不明">不明</label>
         </div>
         <div class="err-msg" id="e-b-pipe-1">選択してください</div>
+        <div id="b-pipe-other-1" style="display:none;margin-top:10px">
+          <input type="text" id="b-pipe-other-text-1" placeholder="配管設備の状況のその他の内容を記入してください">
+        </div>
       </div>
       <div class="field">
         <label class="field-label">追加工事の有無<span class="req">*</span></label>
@@ -793,10 +796,12 @@ input.err, select.err, textarea.err { border-color: #DC3545; background: #FFF8F8
           <label class="choice-label"><input type="checkbox" name="b-add-1" value="基礎工事">基礎工事</label>
           <label class="choice-label"><input type="checkbox" name="b-add-1" value="搬入作業増">搬入作業増</label>
           <label class="choice-label"><input type="checkbox" name="b-add-1" value="特になし">特になし</label>
-          <label class="choice-label"><input type="checkbox" name="b-add-1" value="その他">その他</label>
-          <label class="choice-label"><input type="checkbox" name="b-add-1" value="不明">不明</label>
+          <label class="choice-label"><input type="checkbox" name="b-add-1" value="その他" onchange="toggleBoilerAddOther(this,'1')">その他</label>
         </div>
         <div class="err-msg" id="e-b-add-1">1つ以上選択してください</div>
+        <div id="b-add-other-wrap-1" style="display:none;margin-top:10px">
+          <input type="text" id="b-add-other-1" placeholder="追加工事のその他の内容を記入してください">
+        </div>
       </div>
       <div class="divider"></div>
       <div class="unit-header" style="margin-top:4px"><span class="unit-badge" style="background:#E85A2B">お施主様の希望</span></div>
@@ -811,7 +816,6 @@ input.err, select.err, textarea.err { border-color: #DC3545; background: #FFF8F8
           <label class="choice-label"><input type="checkbox" name="b-reason-1" value="光熱費を下げたい">光熱費を下げたい</label>
           <label class="choice-label"><input type="checkbox" name="b-reason-1" value="オール電化にしたい">オール電化にしたい</label>
           <label class="choice-label"><input type="checkbox" name="b-reason-1" value="その他" onchange="toggleReasonOther(this)">その他</label>
-          <label class="choice-label"><input type="checkbox" name="b-reason-1" value="不明">不明</label>
         </div>
         <div class="err-msg" id="e-b-reason-1">1つ以上選択してください</div>
         <div id="b-reason-other-wrap" style="display:none;margin-top:10px">
@@ -867,19 +871,25 @@ input.err, select.err, textarea.err { border-color: #DC3545; background: #FFF8F8
           <label class="choice-label"><input type="radio" name="b-route-2" value="問題なし">問題なし</label>
           <label class="choice-label"><input type="radio" name="b-route-2" value="非常に狭い">非常に狭い</label>
           <label class="choice-label"><input type="radio" name="b-route-2" value="移動距離が長い">移動距離が長い</label>
-          <label class="choice-label"><input type="radio" name="b-route-2" value="その他">その他</label>
+          <label class="choice-label"><input type="radio" name="b-route-2" value="その他" onchange="toggleBoilerOther('b-route-other-2',true)">その他</label>
           <label class="choice-label"><input type="radio" name="b-route-2" value="不明">不明</label>
         </div>
         <div class="err-msg" id="e-b-route-2">選択してください</div>
+        <div id="b-route-other-2" style="display:none;margin-top:10px">
+          <input type="text" id="b-route-other-text-2" placeholder="搬入経路のその他の内容を記入してください">
+        </div>
       </div>
       <div class="field">
         <label class="field-label">配管設備の状況<span class="req">*</span></label>
         <div class="choice-group" id="rg-b-pipe-2">
           <label class="choice-label"><input type="radio" name="b-pipe-2" value="問題なし">問題なし</label>
-          <label class="choice-label"><input type="radio" name="b-pipe-2" value="その他">その他</label>
+          <label class="choice-label"><input type="radio" name="b-pipe-2" value="その他" onchange="toggleBoilerOther('b-pipe-other-2',true)">その他</label>
           <label class="choice-label"><input type="radio" name="b-pipe-2" value="不明">不明</label>
         </div>
         <div class="err-msg" id="e-b-pipe-2">選択してください</div>
+        <div id="b-pipe-other-2" style="display:none;margin-top:10px">
+          <input type="text" id="b-pipe-other-text-2" placeholder="配管設備の状況のその他の内容を記入してください">
+        </div>
       </div>
       <div class="field">
         <label class="field-label">追加工事の有無<span class="req">*</span></label>
@@ -889,10 +899,12 @@ input.err, select.err, textarea.err { border-color: #DC3545; background: #FFF8F8
           <label class="choice-label"><input type="checkbox" name="b-add-2" value="基礎工事">基礎工事</label>
           <label class="choice-label"><input type="checkbox" name="b-add-2" value="搬入作業増">搬入作業増</label>
           <label class="choice-label"><input type="checkbox" name="b-add-2" value="特になし">特になし</label>
-          <label class="choice-label"><input type="checkbox" name="b-add-2" value="その他">その他</label>
-          <label class="choice-label"><input type="checkbox" name="b-add-2" value="不明">不明</label>
+          <label class="choice-label"><input type="checkbox" name="b-add-2" value="その他" onchange="toggleBoilerAddOther(this,'2')">その他</label>
         </div>
         <div class="err-msg" id="e-b-add-2">1つ以上選択してください</div>
+        <div id="b-add-other-wrap-2" style="display:none;margin-top:10px">
+          <input type="text" id="b-add-other-2" placeholder="追加工事のその他の内容を記入してください">
+        </div>
       </div>
 
       <div class="divider"></div>
@@ -909,7 +921,6 @@ input.err, select.err, textarea.err { border-color: #DC3545; background: #FFF8F8
           <label class="choice-label"><input type="checkbox" name="b-reason-2" value="光熱費を下げたい">光熱費を下げたい</label>
           <label class="choice-label"><input type="checkbox" name="b-reason-2" value="オール電化にしたい">オール電化にしたい</label>
           <label class="choice-label"><input type="checkbox" name="b-reason-2" value="その他" onchange="toggleReasonOther2(this)">その他</label>
-          <label class="choice-label"><input type="checkbox" name="b-reason-2" value="不明">不明</label>
         </div>
         <div class="err-msg" id="e-b-reason-2">1つ以上選択してください</div>
         <div id="b-reason-other-wrap-2" style="display:none;margin-top:10px">
@@ -1192,6 +1203,12 @@ input.err, select.err, textarea.err { border-color: #DC3545; background: #FFF8F8
       </label>
       <textarea id="estimate-format" placeholder="例）1階・2階で分けて出して欲しい&#10;例）TOTOとLIXILで同等品番の見積もりを2種類欲しい&#10;例）複数パターンが必要な場合は内容を記載してください" style="min-height:80px"></textarea>
     </div>
+    <div class="field">
+      <label class="field-label">施主様の希望予算<span class="opt">任意</span>
+        <span class="sub">聞けていればご記入ください</span>
+      </label>
+      <input type="text" id="client-budget" placeholder="例）20万円以内 / 予算は特になし / 不明">
+    </div>
   </div>
 
   <div class="card">
@@ -1433,6 +1450,17 @@ function toggleReasonOther(checkbox) {
   }
 }
 
+function toggleBoilerOther(wrapId, show) {
+  // ラジオの「その他」以外を選んだ場合は閉じる処理はchangeイベントで行う
+  var wrap = document.getElementById(wrapId);
+  if (wrap) wrap.style.display = show ? 'block' : 'none';
+}
+function toggleBoilerAddOther(checkbox, n) {
+  var wrap = document.getElementById('b-add-other-wrap-' + n);
+  if (!wrap) return;
+  wrap.style.display = checkbox.checked ? 'block' : 'none';
+  if (!checkbox.checked) { var inp = document.getElementById('b-add-other-' + n); if(inp) inp.value = ''; }
+}
 function toggleBoilerExtra(open) {
   var detail = document.getElementById('boiler-extra-detail');
   if (detail) detail.style.display = open ? 'block' : 'none';
@@ -2147,7 +2175,52 @@ function doAddMore() {
 }
 
 function saveCurrentWork() {
-  allWorkItems.push({ type: selectedWork });
+  var snapshot = { type: selectedWork, data: {} };
+  // 工事タイプ別にデータをスナップショット
+  if (selectedWork === 'toilet') {
+    var tnums=[1];
+    if(document.getElementById('toilet-unit-2')&&document.getElementById('toilet-unit-2').classList.contains('open')) tnums.push(2);
+    if(document.getElementById('toilet-unit-3')&&document.getElementById('toilet-unit-3').classList.contains('open')) tnums.push(3);
+    snapshot.data.units = tnums.map(function(i){
+      return {
+        type: gr('toilet-type-'+i), drain: gr('drain-type-'+i),
+        width: gv('t-width-'+i), depth: gv('t-depth-'+i), height: gv('t-height-'+i),
+        maker: getChecked('t-maker-'+i), price: gr('t-price-'+i),
+        sink: gr('t-sink-'+i), grade: gr('t-grade-'+i), func: gr('t-func-'+i),
+        item: gv('t-item-'+i), cross: gr('t-cross-'+i),
+        adds: getChecked('t-add-'+i), addOther: gv('t-add-other-'+i)
+      };
+    });
+  }
+  if (selectedWork === 'boiler') {
+    var bnums=[1];
+    if(document.getElementById('boiler-unit-2')&&document.getElementById('boiler-unit-2').classList.contains('open')) bnums.push(2);
+    snapshot.data.units = bnums.map(function(i){
+      return {
+        item: gv('b-item-'+i), route: gr('b-route-'+i), routeOther: gv('b-route-other-text-'+i),
+        pipe: gr('b-pipe-'+i), pipeOther: gv('b-pipe-other-text-'+i),
+        adds: getChecked('b-add-'+i), addOther: gv('b-add-other-'+i),
+        reason: getChecked('b-reason-'+i), reasonOther: gv('b-reason-other-'+i), wish: gv('b-wish-'+i)
+      };
+    });
+    snapshot.data.totalUnits = gv('b-total-units');
+    snapshot.data.sameSpec = gr('b-same-spec');
+  }
+  if (selectedWork === 'cloth') {
+    snapshot.data.mode = gr('c-mode');
+    snapshot.data.freeText = gv('c-free-text');
+    snapshot.data.width = gv('c-width'); snapshot.data.depth = gv('c-depth'); snapshot.data.ceiling = gv('c-ceiling');
+    snapshot.data.range = getChecked('c-range-area'); snapshot.data.rangePart = gv('c-range-part');
+    snapshot.data.itemNo = gv('c-item-no'); snapshot.data.adds = getChecked('c-add');
+    snapshot.data.addOther = gv('c-add-other'); snapshot.data.furniture = gr('c-furniture');
+    snapshot.data.furnitureCost = gv('c-furniture-cost');
+  }
+  snapshot.prospect = gr('prospect');
+  snapshot.workHours = gr('work-hours');
+  snapshot.estimateFormat = gv('estimate-format');
+  snapshot.clientBudget = gv('client-budget');
+  snapshot.notes = gv('notes');
+  allWorkItems.push(snapshot);
 }
 
 function doSubmit() {
@@ -2291,6 +2364,7 @@ function finalSubmit() {
     txt += '見込み角度：' + (gr('prospect')||'—') + '\n';
     txt += '想定施工時間：' + (gr('work-hours')||'—') + '\n';
     var ef = gv('estimate-format'); if(ef) txt += '見積書の作成方法：' + ef + '\n';
+    var cb = gv('client-budget'); if(cb) txt += '施主様の希望予算：' + cb + '\n';
     var notes = gv('notes'); if(notes) txt += '特記事項：' + notes + '\n';
     txt += '\n--- 工事内容 ---\n';
     var wt = buildSlackText(grandTotal);
@@ -2310,65 +2384,61 @@ function finalSubmit() {
 
 /* ===== Slack通知 ===== */
 function buildSlackText(grandTotal) {
-  // 工事内容のみを返す（基本情報・工賃はsubmit.js側で組み立てる）
   var lines = [];
   var allItemsS = window._allWorkItems || [];
   allItemsS.forEach(function(item, idx) {
     lines.push('*■ 工事' + (idx+1) + '：' + getWorkLabel(item.type) + '*');
+    var d = item.data || {};
     if (item.type === 'toilet') {
-      var tnums=[1];
-      if(document.getElementById('toilet-unit-2')&&document.getElementById('toilet-unit-2').classList.contains('open')) tnums.push(2);
-      if(document.getElementById('toilet-unit-3')&&document.getElementById('toilet-unit-3').classList.contains('open')) tnums.push(3);
-      tnums.forEach(function(i){
-        lines.push('【' + i + '台目】');
-        lines.push('　種類：' + (gr('toilet-type-'+i)||'—'));
-        lines.push('　排水芯：' + (gr('drain-type-'+i)||'—'));
-        lines.push('　寸法：幅' + (gv('t-width-'+i)||'—') + 'mm × 奥行' + (gv('t-depth-'+i)||'—') + 'mm × 天井高' + (gv('t-height-'+i)||'—') + 'mm');
-        lines.push('　メーカー：' + (getChecked('t-maker-'+i)||'—'));
-        lines.push('　価格帯：' + (gr('t-price-'+i)||'—'));
-        lines.push('　手洗い：' + (gr('t-sink-'+i)||'—'));
-        lines.push('　便座グレード：' + (gr('t-grade-'+i)||'—'));
-        lines.push('　便座機能：' + (gr('t-func-'+i)||'—'));
-        if(gv('t-item-'+i)) lines.push('　品番：' + gv('t-item-'+i));
-        var cross=gr('t-cross-'+i); if(cross&&cross!=='なし') lines.push('　クロス：' + cross);
-        var adds=getChecked('t-add-'+i); if(adds) lines.push('　追加工事：' + adds);
-        var tao=gv('t-add-other-'+i); if(tao) lines.push('　追加工事その他：' + tao);
+      var units = d.units || [];
+      units.forEach(function(u, ui) {
+        lines.push('【' + (ui+1) + '台目】');
+        lines.push('　種類：' + (u.type||'—'));
+        lines.push('　排水芯：' + (u.drain||'—'));
+        lines.push('　寸法：幅' + (u.width||'—') + 'mm × 奥行' + (u.depth||'—') + 'mm × 天井高' + (u.height||'—') + 'mm');
+        lines.push('　メーカー：' + (u.maker||'—'));
+        lines.push('　価格帯：' + (u.price||'—'));
+        lines.push('　手洗い：' + (u.sink||'—'));
+        lines.push('　便座グレード：' + (u.grade||'—'));
+        lines.push('　便座機能：' + (u.func||'—'));
+        if(u.item) lines.push('　品番：' + u.item);
+        if(u.cross&&u.cross!=='なし') lines.push('　クロス：' + u.cross);
+        if(u.adds) lines.push('　追加工事：' + u.adds);
+        if(u.addOther) lines.push('　追加工事その他：' + u.addOther);
       });
     }
     if (item.type === 'boiler') {
-      var bnums=[1];
-      if(document.getElementById('boiler-unit-2')&&document.getElementById('boiler-unit-2').classList.contains('open')) bnums.push(2);
-      bnums.forEach(function(i){
-        lines.push('【' + i + '台目】');
-        if(gv('b-item-'+i)) lines.push('　既存品番：' + gv('b-item-'+i));
-        lines.push('　搬入経路：' + (gr('b-route-'+i)||'—'));
-        lines.push('　配管状況：' + (gr('b-pipe-'+i)||'—'));
-        lines.push('　追加工事：' + (getChecked('b-add-'+i)||'—'));
-        lines.push('　交換理由：' + (getChecked('b-reason-'+i)||'—'));
-        var bo=gv('b-reason-other-'+i); if(bo) lines.push('　その他：' + bo);
-        if(gv('b-wish-'+i)) lines.push('　希望品番：' + gv('b-wish-'+i));
+      var bunits = d.units || [];
+      bunits.forEach(function(u, ui) {
+        lines.push('【' + (ui+1) + '台目】');
+        if(u.item) lines.push('　既存品番：' + u.item);
+        lines.push('　搬入経路：' + (u.route||'—') + (u.routeOther?'（'+u.routeOther+'）':''));
+        lines.push('　配管状況：' + (u.pipe||'—') + (u.pipeOther?'（'+u.pipeOther+'）':''));
+        lines.push('　追加工事：' + (u.adds||'—') + (u.addOther?'（'+u.addOther+'）':''));
+        lines.push('　交換理由：' + (u.reason||'—') + (u.reasonOther?'（'+u.reasonOther+'）':''));
+        if(u.wish) lines.push('　希望品番：' + u.wish);
       });
-      if(gr('b-extra-1')==='ある'){
-        lines.push('　合計台数：' + (gv('b-total-units')||'—') + '台');
-        lines.push('　2台目以降：' + (gr('b-same-spec')||'—'));
-      }
+      if(d.totalUnits) lines.push('　合計台数：' + d.totalUnits + '台 / 2台目以降：' + (d.sameSpec||'—'));
     }
     if (item.type === 'cloth') {
-      var mode=gr('c-mode');
-      lines.push('入力方法：' + (mode==='free'?'自由記入':'選択式'));
-      if(mode==='detail'){
-        lines.push('　寸法：幅' + (gv('c-width')||'—') + 'mm × 奥行' + (gv('c-depth')||'—') + 'mm × 天井高' + (gv('c-ceiling')||'—') + 'mm');
-        var cr=getChecked('c-range-area'); if(cr) lines.push('　張替え範囲：' + cr);
-        var rp=gv('c-range-part'); if(rp) lines.push('　壁の一部：' + rp);
-        if(gv('c-item-no')) lines.push('　希望品番・色：' + gv('c-item-no'));
-        lines.push('　追加工事：' + (getChecked('c-add')||'—'));
-        var cao=gv('c-add-other'); if(cao) lines.push('　その他：' + cao);
-        lines.push('　家具移動：' + (gr('c-furniture')||'—'));
-        var fc=gv('c-furniture-cost'); if(fc) lines.push('　家具移動希望工賃：¥' + parseInt(fc).toLocaleString('ja-JP'));
+      lines.push('入力方法：' + (d.mode==='free'?'自由記入':'選択式'));
+      if(d.mode==='detail'){
+        lines.push('　寸法：幅' + (d.width||'—') + 'mm × 奥行' + (d.depth||'—') + 'mm × 天井高' + (d.ceiling||'—') + 'mm');
+        if(d.range) lines.push('　張替え範囲：' + d.range);
+        if(d.rangePart) lines.push('　壁の一部：' + d.rangePart);
+        if(d.itemNo) lines.push('　希望品番・色：' + d.itemNo);
+        lines.push('　追加工事：' + (d.adds||'—') + (d.addOther?'（'+d.addOther+'）':''));
+        lines.push('　家具移動：' + (d.furniture||'—'));
+        if(d.furnitureCost) lines.push('　家具移動希望工賃：¥' + parseInt(d.furnitureCost).toLocaleString('ja-JP'));
       } else {
-        lines.push('　' + (gv('c-free-text')||'—'));
+        lines.push('　' + (d.freeText||'—'));
       }
     }
+    if(item.prospect) lines.push('　見込み角度：' + item.prospect);
+    if(item.workHours) lines.push('　想定施工時間：' + item.workHours);
+    if(item.clientBudget) lines.push('　施主希望予算：' + item.clientBudget);
+    if(item.estimateFormat) lines.push('　見積書作成方法：' + item.estimateFormat);
+    if(item.notes) lines.push('　特記事項：' + item.notes);
     lines.push('');
   });
   return lines.join('\n');
@@ -2457,6 +2527,7 @@ function sendSlackNotification(grandTotal) {
       prospect:       gr('prospect'),
       workHours:      gr('work-hours'),
       estimateFormat: gv('estimate-format'),
+      clientBudget:   gv('client-budget'),
       notes:          gv('notes'),
       photos:         compressedPhotos
     };
@@ -2481,15 +2552,47 @@ function sendSlackNotification(grandTotal) {
 
 /* ===== 追加工事入力 =====/* ===== 追加工事入力 ===== */
 function addMoreWork() {
-  // 工事内容の選択だけリセット、基本情報は維持
+  // 工事内容・調査内容・写真・商談情報をリセット（基本情報は維持）
   selectedWork = '';
   document.querySelectorAll('.work-type-card').forEach(function(c){c.classList.remove('selected');});
   var ewt=document.getElementById('e-work-type'); if(ewt) ewt.style.display='none';
-  // 写真もリセット
+
+  // 調査内容のラジオ・チェックをリセット
+  ['#sec-toilet','#sec-boiler','#sec-cloth'].forEach(function(sec){
+    var el=document.querySelector(sec);
+    if(!el) return;
+    el.querySelectorAll('input[type=radio],input[type=checkbox]').forEach(function(i){
+      i.checked=false;
+      var l=i.closest('.choice-label'); if(l) l.classList.remove('selected');
+    });
+    el.querySelectorAll('input[type=text],textarea').forEach(function(i){ i.value=''; });
+    el.querySelectorAll('.expand-block').forEach(function(e){ e.classList.remove('open'); e.style.display=''; });
+  });
+
+  // 商談情報リセット
+  ['prospect','work-hours'].forEach(function(name){
+    document.querySelectorAll('input[name="'+name+'"]').forEach(function(r){
+      r.checked=false;
+      var l=r.closest('.choice-label'); if(l) l.classList.remove('selected');
+    });
+  });
+  var ef=document.getElementById('estimate-format'); if(ef) ef.value='';
+  var cb=document.getElementById('client-budget'); if(cb) cb.value='';
+
+  // 写真リセット
   photos={};
   ['toilet-1-wrap','toilet-2-wrap','toilet-3-wrap','boiler-1-wrap','boiler-2-wrap'].forEach(function(id){
     var el=document.getElementById('photo-'+id); if(el){el.innerHTML='';el.style.display='none';}
   });
+  var clothGrid=document.getElementById('photo-grid-cloth'); if(clothGrid) clothGrid.innerHTML='';
+
+  // 確認画面の工賃確認リセット
+  document.querySelectorAll('input[name="wage-ok"]').forEach(function(r){
+    r.checked=false;
+    var l=r.closest('.choice-label'); if(l) l.classList.remove('selected');
+  });
+  var nav4=document.getElementById('page4-nav'); if(nav4) nav4.style.display='none';
+
   clearAllErrors();
   goTo(1);
 }
@@ -2550,6 +2653,15 @@ document.addEventListener('change',function(e){
     if(inp.name==='add-more'){
       var conf=document.getElementById('add-more-confirm');
       if(conf) conf.style.display=(inp.value==='yes')?'block':'none';
+    }
+    // 給湯器搬入経路・配管のラジオでその他以外を選んだら自由記入欄を閉じる
+    if(inp.name==='b-route-1'||inp.name==='b-route-2'){
+      var n=inp.name.split('-')[2];
+      var w=document.getElementById('b-route-other-'+n); if(w) w.style.display=(inp.value==='その他')?'block':'none';
+    }
+    if(inp.name==='b-pipe-1'||inp.name==='b-pipe-2'){
+      var n2=inp.name.split('-')[2];
+      var w2=document.getElementById('b-pipe-other-'+n2); if(w2) w2.style.display=(inp.value==='その他')?'block':'none';
     }
     if(inp.name==='wage-ok'){
       var nav4=document.getElementById('page4-nav'); if(nav4) nav4.style.display='flex';
