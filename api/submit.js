@@ -92,6 +92,7 @@ export default async function handler(req, res) {
       `見込み角度：${prospect || '—'}`,
       `想定施工時間：${workHours || '—'}`,
       estimateFormat ? `見積書の作成方法：${estimateFormat}` : null,
+      clientBudget ? `施主様の希望予算：${clientBudget}` : null,
       '',
       '*■ 工事内容*',
       workItems || '—',
