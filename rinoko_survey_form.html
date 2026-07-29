@@ -1279,6 +1279,13 @@ input.err, select.err, textarea.err { border-color: #DC3545; background: #FFF8F8
       ⚠️ 工賃についてはおって担当者よりご連絡いたします。
     </div>
 
+    <!-- スクショ用：入力内容サマリー -->
+    <div id="thanks-summary" style="margin-top:20px;background:#F4F6FA;border-radius:10px;padding:16px;text-align:left;">
+      <div style="font-size:12px;color:#E85A2B;font-weight:700;margin-bottom:8px;">📸 報告内容を手元に残したい場合は、この画面をスクリーンショットしてください。</div>
+      <div style="font-size:12px;font-weight:700;color:#5A6E8A;margin-bottom:10px;border-bottom:1px solid #D8DEE8;padding-bottom:6px;">📋 報告内容</div>
+      <div id="thanks-summary-body" style="font-size:12px;color:#2A3A50;line-height:1.9;white-space:pre-wrap;word-break:break-all;"></div>
+    </div>
+
     <div style="margin-top:24px;display:flex;flex-direction:column;gap:10px">
       <button onclick="addMoreWork()" style="width:100%;padding:13px;background:#0A1F44;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;font-family:'Noto Sans JP',sans-serif;cursor:pointer;">＋ 他の工事内容を追加入力する</button>
       <p style="font-size:11px;color:#8A9AB0;text-align:left;margin:2px 0 4px 2px">※ 同一施主様で他にも工事がある場合はこちらから追加入力してください</p>
@@ -2394,16 +2401,13 @@ function downloadZip(allPhotos) {
 function sendSlackNotification(grandTotal) {
   var workItemsText = buildSlackText(grandTotal);
 
-  // 写真を全部集める
+  // 写真を全部集めて圧縮
   var allPhotos = [];
   Object.keys(photos).forEach(function(key){
-    (photos[key]||[]).forEach(function(dataUrl){
-      allPhotos.push(dataUrl);
-    });
+    (photos[key]||[]).forEach(function(dataUrl){ allPhotos.push(dataUrl); });
   });
 
-  // 写真を圧縮してからAPIに送信
-  compressAllPhotos(allPhotos, function(compressedPhotos) {
+  function doSend(compressedPhotos) {
     var payload = {
       company:        gv('company'),
       staff:          gv('staff'),
@@ -2419,29 +2423,22 @@ function sendSlackNotification(grandTotal) {
       notes:          gv('notes'),
       photos:         compressedPhotos
     };
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'https://rinoko-field-investigation-report-f.vercel.app/api/submit', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function() {
+      if (xhr.status === 200) console.log('Slack通知完了');
+      else console.error('送信エラー:', xhr.status, xhr.responseText);
+    };
+    xhr.onerror = function() { console.error('ネットワークエラー'); };
+    xhr.send(JSON.stringify(payload));
+  }
 
-    fetch('https://rinoko-field-investigation-report-f.vercel.app/api/submit', {
-      method:  'POST',
-      headers: {'Content-Type': 'application/json'},
-      body:    JSON.stringify(payload)
-    })
-    .then(function(res){ return res.json(); })
-    .then(function(data){
-      if (data.success) console.log('Slack通知・写真送信完了');
-    })
-    .catch(function(e){ console.error('送信エラー:', e); });
-
-    // ZIPダウンロード（加盟店の手元記録用）
-    var allPhotosZip = [];
-    Object.keys(photos).forEach(function(key){
-      (photos[key]||[]).forEach(function(dataUrl, i){
-        allPhotosZip.push({key:key, idx:i, dataUrl:dataUrl});
-      });
-    });
-    if (allPhotosZip.length > 0 && typeof JSZip !== 'undefined') {
-      downloadZip(allPhotosZip);
-    }
-  });
+  if (allPhotos.length > 0) {
+    compressAllPhotos(allPhotos, function(compressed) { doSend(compressed); });
+  } else {
+    doSend([]);
+  }
 }
 
 
