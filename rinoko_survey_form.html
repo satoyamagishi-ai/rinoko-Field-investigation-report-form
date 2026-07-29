@@ -1316,6 +1316,16 @@ input.err, select.err, textarea.err { border-color: #DC3545; background: #FFF8F8
 <script>
 var currentPage = 1;
 var selectedWork = '';
+
+// 今日の日付をsurvey-dateのデフォルト値に設定
+(function() {
+  var today = new Date();
+  var y = today.getFullYear();
+  var m = String(today.getMonth() + 1).padStart(2, '0');
+  var d = String(today.getDate()).padStart(2, '0');
+  var el = document.getElementById('survey-date');
+  if (el) el.value = y + '-' + m + '-' + d;
+})();
 var photos = {};
 var errorItems = [];
 
