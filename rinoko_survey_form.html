@@ -244,9 +244,11 @@ input.err, select.err, textarea.err { border-color: #DC3545; background: #FFF8F8
         <div class="err-msg" id="e-owner">入力してください</div>
       </div>
       <div class="field">
-        <label class="field-label">調査実施日<span class="req">*</span></label>
-        <input type="date" id="survey-date">
-        <div class="err-msg" id="e-survey-date">選択してください</div>
+        <label class="field-label">調査実施日<span class="req">*</span>
+          <span class="sub">カレンダーから日付を選択してください</span>
+        </label>
+        <input type="date" id="survey-date" style="font-size:16px;padding:14px;text-align:center;">
+        <div class="err-msg" id="e-survey-date">調査実施日を選択してください</div>
       </div>
     </div>
   </div>
@@ -1330,7 +1332,10 @@ function goTo(n) {
   currentPage = n;
   document.getElementById('page-' + n).classList.add('active');
   updateProgress();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // 確実に最上部へ（smooth/instantの両対応）
+  window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
 }
 function updateProgress() {
   for (var i = 1; i <= 4; i++) {
@@ -2263,6 +2268,28 @@ function finalSubmit() {
       if (item.type === 'cloth')  { lines.push('クロス 処分費　¥5,000'); lines.push('クロス 諸経費　¥3,000'); }
     });
     listEl.innerHTML = lines.join('<br>');
+  }
+
+  // サンクスページのサマリーを生成
+  var summaryEl = document.getElementById('thanks-summary-body');
+  if (summaryEl) {
+    var txt = '';
+    txt += '会社名：' + (gv('company')||'—') + '\n';
+    txt += '担当者：' + (gv('staff')||'—') + '\n';
+    txt += 'お施主様：' + (gv('owner')||'—') + '\n';
+    txt += '調査日：' + (gv('survey-date')||'—') + '\n';
+    txt += '見込み角度：' + (gr('prospect')||'—') + '\n';
+    txt += '想定施工時間：' + (gr('work-hours')||'—') + '\n';
+    var ef = gv('estimate-format'); if(ef) txt += '見積書の作成方法：' + ef + '\n';
+    var notes = gv('notes'); if(notes) txt += '特記事項：' + notes + '\n';
+    txt += '\n--- 工事内容 ---\n';
+    var wt = buildSlackText(grandTotal);
+    txt += wt;
+    txt += '\n--- 工賃合計 ---\n';
+    txt += fmt(grandTotal) + '（税抜・目安）\n';
+    txt += '工賃確認：' + (gr('wage-ok')==='yes'?'✅ はい':'❌ いいえ') + '\n';
+    var wc = gv('wage-comment'); if(wc) txt += '異議内容：' + wc + '\n';
+    summaryEl.textContent = txt;
   }
 
   // Slack通知を送信
